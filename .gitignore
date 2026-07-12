@@ -1,0 +1,23 @@
+.godot/
+bin/
+/android/
+.git/
+.idea/
+.vs/
+publish/
+Properties/
+packages/
+.editorconfig
+*.user
+*.pdb
+*.zip
+*.log
+
+# Local analysis, generated candidates, and editor state.
+.codegraph/
+.cursor/
+generated_art/
+scenes_backup/
+
+# Local-only build configuration.
+Directory.Build.props.user

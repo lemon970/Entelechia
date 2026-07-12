@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../Sts2PathDiscovery.props" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GodotProjectDir>$(MSBuildProjectDirectory)/../..</GodotProjectDir>
+    <GodotDisabledSourceGenerators>ScriptPathAttributeGenerator</GodotDisabledSourceGenerators>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <CompilerVisibleProperty Include="GodotDisabledSourceGenerators" />
+    <CompilerVisibleProperty Include="GodotProjectDir" />
+    <ProjectReference Include="../../Entelechia.csproj" />
+    <AdditionalFiles Include="../../Entelechia/localization/**/*.json" />
+    <Reference Include="BaseLib">
+      <HintPath>$(UserProfile)/.nuget/packages/alchyr.sts2.baselib/3.3.5/lib/net9.0/BaseLib.dll</HintPath>
+    </Reference>
+    <Reference Include="GodotSharp">
+      <HintPath>$(Sts2DataDir)/GodotSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(Sts2DataDir)/0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="sts2">
+      <HintPath>$(Sts2DataDir)/sts2.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
