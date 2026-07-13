@@ -14,7 +14,6 @@ public class DiscontinuousPulse : EntelechiaCard
 {
     public DiscontinuousPulse() : base(0, CardType.Skill, CardRarity.Basic, TargetType.None)
     {
-        WithCards(1);
         WithPower<BloodlossPower>(2);
     }
 
@@ -25,8 +24,8 @@ public class DiscontinuousPulse : EntelechiaCard
 
     protected override async Task OnPlay(PlayerChoiceContext context, CardPlay cardPlay)
     {
-        await CardCmd.Exhaust(context, this, false, false);
-        await CommonActions.Draw(this, context);
+        if (await TryExhaustAnotherCard(context))
+            await DrawCards(context, 2m);
 
         var enemies = Owner.Creature.CombatState?.Enemies;
         if (enemies == null) return;
@@ -39,7 +38,6 @@ public class DiscontinuousPulse : EntelechiaCard
             await PowerCmd.Remove(bh);
         else
             await PowerCmd.ModifyAmount(context, bh, -1, Owner.Creature, this, false);
-        await PlayerCmd.GainEnergy(1, Owner);
         await CommonActions.Apply<BloodlossPower>(context, target, this, DynamicVars.Power<BloodlossPower>().BaseValue, true);
     }
 }

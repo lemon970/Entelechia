@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://Entelechia/images/character/idle.png" id="1_idle"]
+
+[node name="EntelechiaMerchant" type="Node2D"]
+
+[node name="Visuals" type="Sprite2D" parent="."]
+position = Vector2(55, -164)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("1_idle")
+flip_h = true

@@ -333,6 +333,10 @@ public class Entelechia : PlaceholderCharacterModel
     public override string CustomIconTexturePath => "character_icon_char_name.png".CharacterUiPath();
     public override string CustomCharacterSelectBg =>
         $"{MainFile.ResPath}/scenes/screens/char_select/char_select_bg_entelechia.tscn";
+    public override string CustomMerchantAnimPath =>
+        $"{MainFile.ResPath}/scenes/merchant/characters/entelechia_merchant.tscn";
+    public override string CustomRestSiteAnimPath =>
+        $"{MainFile.ResPath}/scenes/rest_site/characters/entelechia_rest_site.tscn";
     public override string CustomCharacterSelectIconPath => "char_select_char_name.png".CharacterUiPath();
     public override string CustomCharacterSelectLockedIconPath => "char_select_char_name_locked.png".CharacterUiPath();
     public override string CustomMapMarkerPath => "map_marker_char_name.png".CharacterUiPath();

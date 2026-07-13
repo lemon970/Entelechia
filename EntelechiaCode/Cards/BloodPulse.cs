@@ -9,6 +9,8 @@ namespace Entelechia.EntelechiaCode.Cards;
 
 public class BloodPulse : EntelechiaCard
 {
+    protected override decimal HpCost => 3m;
+
     public BloodPulse() : base(1, CardType.Skill, CardRarity.Common, TargetType.None)
     {
         WithCards(2);
@@ -21,9 +23,8 @@ public class BloodPulse : EntelechiaCard
 
     protected override async Task OnPlay(PlayerChoiceContext context, CardPlay cardPlay)
     {
-        var lowHealth = IsLowHealth();
+        if (!await TryPayHpCost(context, HpCost, cardPlay)) return;
         await DrawCards(context, DynamicVars.Cards.BaseValue);
-        if (lowHealth || TurnStateTracker.LostHpThisTurn)
-            await PlayerCmd.GainEnergy(1, Owner);
+        await PlayerCmd.GainEnergy(1, Owner);
     }
 }

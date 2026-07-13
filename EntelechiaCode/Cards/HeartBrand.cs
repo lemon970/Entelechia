@@ -10,6 +10,7 @@ namespace Entelechia.EntelechiaCode.Cards;
 
 public class HeartBrand : EntelechiaCard
 {
+    protected override decimal HpCost => 3m;
     private decimal ExistingCandlePercent => DynamicVars.Power<HeartCandlePower>().BaseValue / 2m;
 
     public HeartBrand() : base(1, CardType.Skill, CardRarity.Common, TargetType.AnyEnemy)
@@ -25,6 +26,7 @@ public class HeartBrand : EntelechiaCard
 
     protected override async Task OnPlay(PlayerChoiceContext context, CardPlay cardPlay)
     {
+        if (!await TryPayHpCost(context, HpCost, cardPlay)) return;
         if (cardPlay.Target != null)
         {
             var hadCandle = cardPlay.Target.Powers?.Any(power => power is HeartCandlePower) == true;

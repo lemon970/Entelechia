@@ -1,4 +1,5 @@
 using BaseLib.Abstracts;
+using BaseLib.Extensions;
 using BaseLib.Utils;
 using Entelechia.EntelechiaCode.Powers;
 using MegaCrit.Sts2.Core.Entities.Cards;
@@ -14,6 +15,8 @@ public class BloodBlade : EntelechiaCard
     public BloodBlade() : base(1, CardType.Attack, CardRarity.Basic, TargetType.AnyEnemy)
     {
         WithDamage(6);
+        WithPower<BloodHarvestPower>(1);
+        WithTags(CardTag.Strike);
     }
 
     protected override void OnUpgrade()
@@ -26,6 +29,11 @@ public class BloodBlade : EntelechiaCard
         // ponytail: AttackCommand needs explicit execution
         await ExecuteCardAttack(context, cardPlay);
         if (cardPlay.Target is { CurrentHp: > 0 } target)
-            await CommonActions.Apply<BloodHarvestPower>(context, target, this, 1, true);
+            await CommonActions.Apply<BloodHarvestPower>(
+                context,
+                target,
+                this,
+                DynamicVars.Power<BloodHarvestPower>().BaseValue,
+                true);
     }
 }

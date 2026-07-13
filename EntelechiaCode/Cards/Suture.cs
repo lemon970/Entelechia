@@ -29,5 +29,8 @@ public class Suture : EntelechiaCard
         await CommonActions.CardBlock(this, cardPlay);
         if (lowHealth || TurnStateTracker.HealedThisTurn)
             await CreatureCmd.GainBlock(Owner.Creature, ConditionalBlock, default, cardPlay, false);
+
+        if (await TryExhaustAnotherCard(context))
+            await DrawCards(context, 1m);
     }
 }

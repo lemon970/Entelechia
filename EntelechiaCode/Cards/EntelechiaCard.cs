@@ -8,6 +8,7 @@ using Entelechia.EntelechiaCode.Powers;
 using Entelechia.EntelechiaCode.Relics;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Commands.Builders;
+using MegaCrit.Sts2.Core.CardSelection;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Models;
@@ -141,6 +142,24 @@ public abstract class EntelechiaCard(int cost, CardType type, CardRarity rarity,
 
     protected Task<IEnumerable<CardModel>> DrawCards(PlayerChoiceContext context, decimal count)
         => CardPileCmd.Draw(context, count, Owner, false);
+
+    protected async Task<bool> TryExhaustAnotherCard(PlayerChoiceContext context)
+    {
+        var hasCandidate = Owner.PlayerCombatState?.Hand.Cards.Any(
+            card => !ReferenceEquals(card, this)) == true;
+        if (!hasCandidate) return false;
+
+        var selected = (await CardSelectCmd.FromHand(
+            context,
+            Owner,
+            new CardSelectorPrefs(CardSelectorPrefs.ExhaustSelectionPrompt, 0, 1),
+            card => !ReferenceEquals(card, this),
+            this)).FirstOrDefault();
+        if (selected is null) return false;
+
+        await CardCmd.Exhaust(context, selected);
+        return true;
+    }
 
     public new bool CanPlay()
     {

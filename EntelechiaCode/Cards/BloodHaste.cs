@@ -12,7 +12,7 @@ namespace Entelechia.EntelechiaCode.Cards;
 
 public class BloodHaste : EntelechiaCard
 {
-    protected override decimal HpCost => 2m;
+    protected override decimal HpCost => 3m;
 
     public BloodHaste() : base(0, CardType.Skill, CardRarity.Common, TargetType.None)
     {

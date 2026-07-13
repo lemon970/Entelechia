@@ -12,6 +12,7 @@ public class BloodVeil : EntelechiaCard
     public BloodVeil() : base(1, CardType.Skill, CardRarity.Basic, TargetType.None)
     {
         WithBlock(6);
+        WithTags(CardTag.Defend);
     }
 
     protected override void OnUpgrade()

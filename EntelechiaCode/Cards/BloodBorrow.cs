@@ -10,7 +10,7 @@ namespace Entelechia.EntelechiaCode.Cards;
 
 public class BloodBorrow : EntelechiaCard
 {
-    protected override decimal HpCost => IsLowHealth() ? 1m : 2m;
+    protected override decimal HpCost => IsLowHealth() ? 3m : 4m;
 
     public BloodBorrow() : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.None)
     {

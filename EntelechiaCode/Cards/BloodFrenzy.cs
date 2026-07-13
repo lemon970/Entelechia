@@ -1,3 +1,4 @@
+using BaseLib.Extensions;
 using BaseLib.Utils;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
@@ -18,6 +19,7 @@ public class BloodFrenzy : EntelechiaCard
     protected override void OnUpgrade()
     {
         DynamicVars.Damage.UpgradeValueBy(1);
+        EnergyCost.UpgradeBy(-1);
     }
 
     protected override async Task OnPlay(PlayerChoiceContext context, CardPlay cardPlay)

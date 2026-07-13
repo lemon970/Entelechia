@@ -1,4 +1,5 @@
 using BaseLib.Abstracts;
+using BaseLib.Extensions;
 using BaseLib.Utils;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
@@ -21,7 +22,7 @@ public class SoulBloodDraw : EntelechiaCard
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Damage.UpgradeValueBy(5);
+        EnergyCost.UpgradeBy(-1);
         DynamicVars.Heal.UpgradeValueBy(2);
     }
 

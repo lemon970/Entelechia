@@ -37,36 +37,17 @@ public class BloodDebtSettlement : EntelechiaCard
                 await PowerCmd.ModifyAmount(context, harvest, -stacks, Owner.Creature, this, false);
 
             var rawHeal = stacks * 3m;
-            var hpBeforeHeal = Owner.Creature.CurrentHp;
             await TurnStateTracker.HealTracking(Owner.Creature, rawHeal, true);
-            var actualHeal = Owner.Creature.CurrentHp - hpBeforeHeal;
 
             if (lowHealth)
             {
                 if (stacks >= 2)
                     await PlayerCmd.GainEnergy(1, Owner);
-
-                var overflowBlock = Math.Min(rawHeal - actualHeal, 12m);
-                if (overflowBlock > 0)
-                    await CreatureCmd.GainBlock(Owner.Creature, overflowBlock, default, cardPlay, false);
             }
             else
             {
                 await DrawCards(context, 1);
             }
-        }
-
-        var bloodloss = cardPlay.Target.Powers?.FirstOrDefault(p => p is BloodlossPower);
-        if (bloodloss != null && bloodloss.Amount > 0)
-        {
-            var toRemove = Math.Min(6, (int)bloodloss.Amount);
-            if (toRemove >= (int)bloodloss.Amount)
-                await PowerCmd.Remove(bloodloss);
-            else
-                await PowerCmd.ModifyAmount(context, bloodloss, -toRemove, Owner.Creature, this, false);
-            var strengthGain = toRemove / 2;
-            if (strengthGain > 0)
-                await CommonActions.Apply<BloodDebtStrengthPower>(context, Owner.Creature, this, strengthGain, true);
         }
 
         if (ExhaustsOnPlay)

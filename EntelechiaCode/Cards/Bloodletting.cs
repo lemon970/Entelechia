@@ -12,7 +12,7 @@ namespace Entelechia.EntelechiaCode.Cards;
 
 public class EntelechiaBloodletting : EntelechiaCard
 {
-    protected override decimal HpCost => 4m;
+    protected override decimal HpCost => 6m;
 
     public EntelechiaBloodletting() : base(0, CardType.Skill, CardRarity.Uncommon, TargetType.None)
     {
@@ -34,7 +34,6 @@ public class EntelechiaBloodletting : EntelechiaCard
         await CommonActions.Apply<BloodlettingStrengthPower>(context, Owner.Creature, this, DynamicVars.Power<BloodlettingStrengthPower>().BaseValue, true);
         await CommonActions.Apply<BloodSpeedPower>(context, Owner.Creature, this, DynamicVars.Power<BloodSpeedPower>().BaseValue + (lowHealth ? 1 : 0), true);
 
-        if (!lowHealth)
-            await DrawCards(context, 1);
+        await DrawCards(context, 1);
     }
 }

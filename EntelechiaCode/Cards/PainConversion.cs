@@ -24,7 +24,6 @@ public class PainConversion : EntelechiaCard
     protected override async Task OnPlay(PlayerChoiceContext context, CardPlay cardPlay)
     {
         await CommonActions.Apply<PainConversionPower>(context, Owner.Creature, this, RuntimePowerAmount, true);
-        if (IsHighHealth())
-            await DrawCards(context, 1);
+        await DrawCards(context, 1);
     }
 }

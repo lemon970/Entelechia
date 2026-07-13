@@ -12,9 +12,9 @@ namespace Entelechia.EntelechiaCode.Cards;
 public class RoseTrail : EntelechiaCard
 {
     protected override decimal BaseDamage => DynamicVars.Damage.BaseValue;
-    public RoseTrail() : base(1, CardType.Attack, CardRarity.Basic, TargetType.AnyEnemy)
+    public RoseTrail() : base(0, CardType.Attack, CardRarity.Basic, TargetType.AnyEnemy)
     {
-        WithDamage(4);
+        WithDamage(3);
         WithPower<BloodHarvestPower>(2);
         WithPower<BloodlossPower>(1);
     }

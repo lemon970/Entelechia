@@ -19,8 +19,7 @@ public class SpiritAndDesireFarewell : EntelechiaCard
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Damage.UpgradeValueBy(2);
-        DynamicVars.Power<HeartCandlePower>().UpgradeValueBy(6);
+        EnergyCost.UpgradeBy(-1);
     }
 
     protected override async Task OnPlay(PlayerChoiceContext context, CardPlay cardPlay)

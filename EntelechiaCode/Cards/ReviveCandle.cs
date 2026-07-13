@@ -13,7 +13,7 @@ public class ReviveCandle : EntelechiaCard
 {
     private decimal ReviveRatio => DynamicVars.Power<HeartCandlePower>().BaseValue / 100m;
 
-    public ReviveCandle() : base(1, CardType.Skill, CardRarity.Rare, TargetType.AnyEnemy)
+    public ReviveCandle() : base(0, CardType.Skill, CardRarity.Rare, TargetType.AnyEnemy)
     {
         WithPower<HeartCandlePower>(50);
     }
@@ -34,6 +34,10 @@ public class ReviveCandle : EntelechiaCard
                 await CommonActions.Apply<HeartCandlePower>(context, cardPlay.Target, this, stacks, true);
                 var after = cardPlay.Target.Powers?.FirstOrDefault(power => power is HeartCandlePower)?.Amount ?? 0m;
                 HeartCandleLedger.RecordRevived(cardPlay.Target, Math.Max(after - before, 0m));
+            }
+            else
+            {
+                await DrawCards(context, 1);
             }
         }
         await CardCmd.Exhaust(context, this, false, false);

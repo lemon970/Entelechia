@@ -1,32 +1,29 @@
-using BaseLib.Utils;
 using BaseLib.Extensions;
-using MegaCrit.Sts2.Core.Entities.Cards;
+using BaseLib.Utils;
 using MegaCrit.Sts2.Core.Combat;
+using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Models.Cards;
-using Entelechia.EntelechiaCode.Powers;
 
 namespace Entelechia.EntelechiaCode.Cards;
 
-public class BloodInfect : EntelechiaCard
+public class ResidualPulseConduit : EntelechiaCard
 {
-    public BloodInfect() : base(1, CardType.Skill, CardRarity.Common, TargetType.AnyEnemy)
+    public ResidualPulseConduit() : base(1, CardType.Skill, CardRarity.Rare, TargetType.None)
     {
-        WithPower<BloodlossPower>(4);
+        WithBlock(6);
         WithTips(card => [HoverTipFactory.FromCard<ResidualPulse>(card.IsUpgraded)]);
     }
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Power<BloodlossPower>().UpgradeValueBy(2);
+        DynamicVars.Block.UpgradeValueBy(3m);
     }
 
     protected override async Task OnPlay(PlayerChoiceContext context, CardPlay cardPlay)
     {
-        if (cardPlay.Target is { CurrentHp: > 0 } target)
-            await CommonActions.Apply<BloodlossPower>(context, target, this, DynamicVars.Power<BloodlossPower>().BaseValue, true);
-
+        await CommonActions.CardBlock(this, cardPlay);
         if (Owner.Creature.CombatState is CombatState combatState)
             await ResidualPulse.CreateInHand(Owner, combatState, IsUpgraded);
     }

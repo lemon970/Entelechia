@@ -25,6 +25,6 @@ public class BloodMend : EntelechiaCard
         if (lowHealth)
             await TurnStateTracker.HealTracking(Owner.Creature, DynamicVars.Heal.BaseValue, true);
 
-        await DrawCards(context, lowHealth ? DynamicVars.Cards.BaseValue - 1m : DynamicVars.Cards.BaseValue);
+        await DrawCards(context, DynamicVars.Cards.BaseValue);
     }
 }

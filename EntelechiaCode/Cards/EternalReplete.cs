@@ -10,17 +10,16 @@ namespace Entelechia.EntelechiaCode.Cards;
 
 public class EternalReplete : EntelechiaCard
 {
-    public EternalReplete() : base(2, CardType.Power, CardRarity.Rare, TargetType.None)
+    public EternalReplete() : base(1, CardType.Power, CardRarity.Rare, TargetType.None)
     {
         WithPower<EternalRepletePower>(1);
     }
 
     public decimal RuntimePowerAmount => DynamicVars.Power<EternalRepletePower>().BaseValue;
-    public decimal RuntimeHealRatio => EternalRepletePower.HealRatioFor(RuntimePowerAmount);
+    public decimal RuntimeHealRatio => IsUpgraded ? 0.55m : 0.50m;
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Power<EternalRepletePower>().UpgradeValueBy(1);
     }
 
     protected override async Task OnPlay(PlayerChoiceContext context, CardPlay cardPlay)
@@ -40,5 +39,8 @@ public class EternalReplete : EntelechiaCard
         }
 
         await CommonActions.Apply<EternalRepletePower>(context, Owner.Creature, this, RuntimePowerAmount, true);
+        var power = Owner.Creature.Powers?.OfType<EternalRepletePower>().FirstOrDefault();
+        if (power != null)
+            power.HealRatio = Math.Max(power.HealRatio, RuntimeHealRatio);
     }
 }

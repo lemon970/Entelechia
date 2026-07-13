@@ -55,11 +55,20 @@ public partial class MainFile : Node
         catch (Exception e) { Logger.Info($"Transition patch failed: {e.Message}"); }
     }
 
-    // ponytail: redirect entelechia .tres to ironclad before cache lookup
+    private const string EntelechiaTransitionPath = "res://materials/transitions/entelechia_transition_mat.tres";
+    private const string IroncladTransitionPath = "res://materials/transitions/ironclad_transition_mat.tres";
+    private const string EntelechiaCombatVisualsPath = "res://scenes/creature_visuals/entelechia.tscn";
+    private const string IroncladCombatVisualsPath = "res://scenes/creature_visuals/ironclad.tscn";
+
+    // Redirect only the two legacy placeholder entry points before cache lookup.
     public static void AssetLoadPrefix(ref string path)
     {
-        if (path?.Contains("entelechia") == true)
-            path = path.Replace("entelechia", "ironclad");
+        path = path switch
+        {
+            EntelechiaTransitionPath => IroncladTransitionPath,
+            EntelechiaCombatVisualsPath => IroncladCombatVisualsPath,
+            _ => path
+        };
     }
 
     public static void FadeOutPrefix(ref string transitionPath)

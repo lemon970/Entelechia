@@ -12,6 +12,7 @@ namespace Entelechia.EntelechiaCode.Cards;
 public class BloodStorm : EntelechiaCard
 {
     protected override decimal BaseDamage => DynamicVars.Damage.BaseValue;
+    protected override decimal HpCost => 4m;
     public BloodStorm() : base(2, CardType.Attack, CardRarity.Uncommon, TargetType.AnyEnemy)
     {
         WithDamage(16);
@@ -27,6 +28,7 @@ public class BloodStorm : EntelechiaCard
     protected override async Task OnPlay(PlayerChoiceContext context, CardPlay cardPlay)
     {
         var lowHealth = IsLowHealth();
+        if (!await TryPayHpCost(context, HpCost, cardPlay)) return;
         await ExecuteCardAttack(context, cardPlay);
         if (cardPlay.Target is { CurrentHp: > 0 } target)
         {

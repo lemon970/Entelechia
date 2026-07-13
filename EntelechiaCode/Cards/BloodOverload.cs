@@ -12,9 +12,9 @@ namespace Entelechia.EntelechiaCode.Cards;
 
 public class BloodOverload : EntelechiaCard
 {
-    protected override decimal HpCost => 2m;
+    protected override decimal HpCost => 4m;
 
-    public BloodOverload() : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.None)
+    public BloodOverload() : base(0, CardType.Skill, CardRarity.Uncommon, TargetType.None)
     {
         WithPower<BloodSpeedPower>(2);
     }
@@ -36,10 +36,10 @@ public class BloodOverload : EntelechiaCard
             DynamicVars.Power<BloodSpeedPower>().BaseValue,
             true);
 
+        await DrawCards(context, 1);
+
         if (lowHealth)
             await PlayerCmd.GainEnergy(1, Owner);
-        else
-            await DrawCards(context, 1);
 
         await CardCmd.Exhaust(context, this, false, false);
     }

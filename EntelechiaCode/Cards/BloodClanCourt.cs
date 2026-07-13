@@ -10,14 +10,15 @@ namespace Entelechia.EntelechiaCode.Cards;
 
 public class BloodClanCourt : EntelechiaCard
 {
-    public BloodClanCourt() : base(3, CardType.Power, CardRarity.Rare, TargetType.None)
+    public BloodClanCourt() : base(2, CardType.Power, CardRarity.Rare, TargetType.None)
     {
         WithPower<BloodClanCourtPower>(2);
+        WithCards(0);
     }
 
     protected override void OnUpgrade()
     {
-        EnergyCost.UpgradeBy(-1);
+        DynamicVars.Cards.UpgradeValueBy(1);
     }
 
     public decimal RuntimePowerAmount => DynamicVars.Power<BloodClanCourtPower>().BaseValue;
@@ -28,6 +29,9 @@ public class BloodClanCourt : EntelechiaCard
         if (enemies != null)
             foreach (var enemy in enemies.ToList().Where(enemy => enemy.CurrentHp > 0))
                 await CommonActions.Apply<BloodlossPower>(context, enemy, this, RuntimePowerAmount, true);
+
+        if (DynamicVars.Cards.BaseValue > 0)
+            await DrawCards(context, DynamicVars.Cards.BaseValue);
 
         await CommonActions.Apply<BloodClanCourtPower>(context, Owner.Creature, this, RuntimePowerAmount, true);
     }
