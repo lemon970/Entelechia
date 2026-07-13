@@ -15,7 +15,7 @@ public class CrimsonWardPower : EntelechiaPower
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
 
-    public override decimal ModifyDamageMultiplicative(Creature? target, decimal amount, ValueProp props, Creature? attacker, CardModel? cardSource, CardPlay? cardPlay)
+    internal decimal GetDamageMultiplier(Creature? target, decimal amount, ValueProp props, CardModel? cardSource)
     {
         if (target != Owner || amount <= 0 || !IsAttackDamage(props, cardSource)) return 1m;
         return 0.5m;

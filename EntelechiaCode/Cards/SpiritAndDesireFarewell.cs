@@ -26,7 +26,10 @@ public class SpiritAndDesireFarewell : EntelechiaCard
     {
         var targets = this.GetTargets().Where(enemy => enemy.CurrentHp > 0).ToList();
         foreach (var enemy in targets.Where(enemy => enemy.CurrentHp > 0))
-            await ExecuteAttack(context, new AttackCommand(BaseDamage).FromCard(this, cardPlay).Targeting(enemy).WithHitCount(2));
+            await ExecuteAttack(
+                context,
+                new AttackCommand(BaseDamage).FromCardCompatibility(this, cardPlay).Targeting(enemy).WithHitCount(2),
+                cardPlay: cardPlay);
         foreach (var enemy in targets.Where(enemy => enemy.CurrentHp > 0))
             await HeartCandlePower.ApplyPercent(context, enemy, this, DynamicVars.Power<HeartCandlePower>().BaseValue, true);
     }

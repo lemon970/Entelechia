@@ -77,7 +77,14 @@ public static class TurnStateTracker
         if (amount <= 0) return;
 
         var before = creature.CurrentHp;
-        await CreatureCmd.Damage(context ?? new BlockingPlayerChoiceContext(), creature, amount, props, dealer, cardSource, cardPlay);
+        await Sts2Compatibility.Damage(
+            context ?? new BlockingPlayerChoiceContext(),
+            creature,
+            amount,
+            props,
+            dealer,
+            cardSource,
+            cardPlay);
         TrackHpDelta(creature, creature.CurrentHp - before);
     }
 
@@ -94,6 +101,31 @@ public static class TurnStateTracker
             HealedThisTurn = true;
             HpHealedThisTurn += delta;
         }
+    }
+}
+
+[HarmonyPatch]
+public static class CrimsonWardDamageCompatibilityPatch
+{
+    public static MethodBase TargetMethod()
+    {
+        return typeof(PowerModel).GetMethods(BindingFlags.Public | BindingFlags.Instance)
+            .Single(method =>
+                method.Name == nameof(PowerModel.ModifyDamageMultiplicative)
+                && method.ReturnType == typeof(decimal)
+                && method.GetParameters().Length is 5 or 6);
+    }
+
+    public static void Postfix(
+        PowerModel __instance,
+        Creature? target,
+        decimal amount,
+        ValueProp props,
+        CardModel? cardSource,
+        ref decimal __result)
+    {
+        if (__instance is CrimsonWardPower ward)
+            __result *= ward.GetDamageMultiplier(target, amount, props, cardSource);
     }
 }
 

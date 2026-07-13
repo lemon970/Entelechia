@@ -28,7 +28,10 @@ public class RedCandleAll : EntelechiaCard
         foreach (var enemy in enemies.ToList().Where(enemy => enemy.CurrentHp > 0))
         {
             if (enemy.Powers?.Any(p => p is HeartCandlePower) != true) continue;
-            await ExecuteAttack(context, new AttackCommand(BaseDamage).FromCard(this, cardPlay).Targeting(enemy));
+            await ExecuteAttack(
+                context,
+                new AttackCommand(BaseDamage).FromCardCompatibility(this, cardPlay).Targeting(enemy),
+                cardPlay: cardPlay);
         }
     }
 }

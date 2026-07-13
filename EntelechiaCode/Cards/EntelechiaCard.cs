@@ -54,7 +54,7 @@ public abstract class EntelechiaCard(int cost, CardType type, CardRarity rarity,
     // BaseLib 3.3.5 still calls 1-arg via CommonActions.CardAttack.
     protected AttackCommand CardAttack(CardPlay play, int hitCount = 1)
     {
-        var cmd = new AttackCommand(BaseDamage).FromCard(this, play);
+        var cmd = new AttackCommand(BaseDamage).FromCardCompatibility(this, play);
         if (TargetType == MegaCrit.Sts2.Core.Entities.Cards.TargetType.AllEnemies)
             cmd = cmd.TargetingAllOpponents(Owner.Creature.CombatState!);
         else if (play.Target != null)
@@ -68,13 +68,14 @@ public abstract class EntelechiaCard(int cost, CardType type, CardRarity rarity,
         var variant = hitCount > 1
             ? EntelechiaAnimationVariant.MultiHit
             : EntelechiaAnimationVariant.Normal;
-        return await ExecuteAttack(context, CardAttack(play, hitCount), variant);
+        return await ExecuteAttack(context, CardAttack(play, hitCount), variant, play);
     }
 
     protected async Task<AttackCommand> ExecuteAttack(
         PlayerChoiceContext context,
         AttackCommand attack,
-        EntelechiaAnimationVariant variant = EntelechiaAnimationVariant.Normal)
+        EntelechiaAnimationVariant variant = EntelechiaAnimationVariant.Normal,
+        CardPlay? cardPlay = null)
     {
         attack = await attack.Execute(context);
         TryPlayAttackAnimation(attack.IsMultiTargeted
@@ -84,8 +85,8 @@ public abstract class EntelechiaCard(int cost, CardType type, CardRarity rarity,
         foreach (var feast in Owner.Creature.Powers.OfType<BloodFeastPower>().ToList())
         {
             await feast.ReconcileCompletedAttack(context, attack);
-            if (attack.CardPlay?.Target != null)
-                await feast.ReconcileKilledTarget(context, attack, attack.CardPlay.Target);
+            if (cardPlay?.Target != null)
+                await feast.ReconcileKilledTarget(context, attack, cardPlay.Target);
         }
         return attack;
     }

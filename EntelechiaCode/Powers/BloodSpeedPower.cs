@@ -1,4 +1,5 @@
 using BaseLib.Abstracts;
+using BaseLib.Utils;
 using Entelechia.EntelechiaCode.Cards;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Commands.Builders;
@@ -64,7 +65,7 @@ public class BloodSpeedPower : EntelechiaPower
             PlayIndex = cardSource.CurrentPlayIndex,
             PlayCount = 1
         };
-        await new AttackCommand(extraDamage).FromCard(hiddenCard, extraPlay).Targeting(target).WithHitCount(1).Execute(choiceContext);
+        await new AttackCommand(extraDamage).FromCardCompatibility(hiddenCard, extraPlay).Targeting(target).WithHitCount(1).Execute(choiceContext);
     }
 
     private readonly record struct CardPlayTriggerKey(CardModel Card, int PlayIndex);

@@ -155,7 +155,7 @@ public class BloodFeastPower : EntelechiaPower
     private bool TryGetBloodFeastCardSource(AttackCommand attack, out CardModel cardSource)
     {
         cardSource = null!;
-        if (attack.CardPlay?.Card is not CardModel source) return false;
+        if (attack.ModelSource is not CardModel source) return false;
         var attacker = attack.Attacker ?? source.Owner?.Creature;
         if (attacker != Owner) return false;
         if (source.Type != CardType.Attack) return false;

@@ -59,6 +59,15 @@ var upgradePatchType = typeof(ConstructedCardModel).Assembly.GetType(
 new Harmony("Entelechia.UpgradeProbe")
     .CreateClassProcessor(upgradePatchType)
     .Patch();
+if (!args.Contains("--without-enchantment-upgrade-patch", StringComparer.Ordinal))
+{
+    new Harmony("Entelechia.UpgradeProbe.EnchantmentUpgrade")
+        .CreateClassProcessor(typeof(Entelechia.EntelechiaCode.EnchantmentUpgradePatch))
+        .Patch();
+    new Harmony("Entelechia.UpgradeProbe.EnchantmentApplied")
+        .CreateClassProcessor(typeof(Entelechia.EntelechiaCode.EnchantmentAppliedPatch))
+        .Patch();
+}
 
 void Check(string name, decimal actual, decimal expected)
 {
@@ -146,6 +155,20 @@ foreach (var language in new[] { "zhs", "eng" })
         CheckDescriptionVariable(language, key, upgradedBloodSpeedToken);
 }
 
+var expectedDiscontinuousPulseZhs = new Dictionary<string, string>
+{
+    ["ENTELECHIA-DISCONTINUOUS_PULSE.description"] = "你可以消耗至多 1 张其他手牌。若消耗了牌，抽 2 张牌。无论是否消耗牌，移除首个拥有萃血的存活敌人的 1 层萃血，再对其施加 {IfUpgraded:cond:=1?[green]{BloodlossPower}[/green]|{BloodlossPower:diff()}} 层失血。",
+    ["ENTELECHIA-DISCONTINUOUS_PULSE.description+"] = "你可以消耗至多 1 张其他手牌。若消耗了牌，抽 2 张牌。无论是否消耗牌，移除首个拥有萃血的存活敌人的 1 层萃血，再对其施加 3 层失血。",
+    ["DISCONTINUOUS_PULSE.description"] = "你可以消耗至多 1 张其他手牌。若消耗了牌，抽 2 张牌。无论是否消耗牌，移除首个拥有萃血的存活敌人的 1 层萃血，再对其施加 {IfUpgraded:cond:=1?[green]{BloodlossPower}[/green]|{BloodlossPower:diff()}} 层失血。",
+    ["DISCONTINUOUS_PULSE.description+"] = "你可以消耗至多 1 张其他手牌。若消耗了牌，抽 2 张牌。无论是否消耗牌，移除首个拥有萃血的存活敌人的 1 层萃血，再对其施加 3 层失血。"
+};
+using (var document = JsonDocument.Parse(File.ReadAllText(Path.Combine(
+           Directory.GetCurrentDirectory(), "Entelechia", "localization", "zhs", "cards.json"))))
+{
+    foreach (var (key, expected) in expectedDiscontinuousPulseZhs)
+        CheckText($"zhs {key}", document.RootElement.GetProperty(key).GetString() ?? string.Empty, expected);
+}
+
 void CheckCardLocalizationAliases(string language)
 {
     var path = Path.Combine(
@@ -161,7 +184,7 @@ void CheckCardLocalizationAliases(string language)
         .OrderBy(type => type.Name, StringComparer.Ordinal)
         .ToArray();
 
-    Check($"{language} concrete card localization count", cardTypes.Length, 57m);
+    Check($"{language} concrete card localization count", cardTypes.Length, 60m);
     foreach (var cardType in cardTypes)
     {
         if (Activator.CreateInstance(cardType) is not EntelechiaCard card)
@@ -405,7 +428,7 @@ void CheckRenderedUpgradeDescriptions(string language)
                 expected);
 
             var isRemovalOnlyUpgrade = unprefixedId is
-                "BLOOD_DEBT_SETTLEMENT" or "IMMORTAL_BLOODLINE";
+                "BLOOD_DEBT_SETTLEMENT" or "CRIMSON_SACRIFICE" or "IMMORTAL_BLOODLINE";
             if (!isRemovalOnlyUpgrade
                 && !string.Equals(normal, expected, StringComparison.Ordinal))
             {
@@ -422,6 +445,12 @@ void CheckRenderedUpgradeDescriptions(string language)
 
 CheckRenderedUpgradeDescriptions("zhs");
 CheckRenderedUpgradeDescriptions("eng");
+
+DeckFlowBoundaryExpectations.Run(failures);
+
+EnchantmentUpgradeExpectations.Run(failures);
+
+Sts2CompatibilityExpectations.Run(failures);
 
 UpgradeTestHarness.Run(
     AttackUpgradeExpectations.Cases

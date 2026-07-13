@@ -51,7 +51,10 @@ public class BloodDissect : EntelechiaCard
             {
                 if (target.CurrentHp <= 0) break;
                 var extraDamage = DynamicVars.Var<PowerVar<BloodHarvestPower>>("ExtraDamage").BaseValue;
-                await ExecuteAttack(context, new AttackCommand(extraDamage).FromCard(this, cardPlay).Targeting(target));
+                await ExecuteAttack(
+                    context,
+                    new AttackCommand(extraDamage).FromCardCompatibility(this, cardPlay).Targeting(target),
+                    cardPlay: cardPlay);
             }
         });
 

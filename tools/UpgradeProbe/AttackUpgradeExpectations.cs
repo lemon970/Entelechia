@@ -1,3 +1,4 @@
+using System.Reflection;
 using BaseLib.Extensions;
 using Entelechia.EntelechiaCode.Cards;
 using Entelechia.EntelechiaCode.Powers;
@@ -46,17 +47,39 @@ internal static class AttackUpgradeExpectations
         }
     }
 
+    private static UpgradeValueExpectation Property(string name, object baseValue, object upgradedValue) =>
+        UpgradeTestHarness.Value(name, card => ReadProperty(card, name), baseValue, upgradedValue);
+
+    private static object? ReadProperty(EntelechiaCard card, string name)
+    {
+        for (var type = card.GetType(); type != null; type = type.BaseType)
+        {
+            var property = type.GetProperty(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (property != null)
+                return property.GetValue(card);
+        }
+
+        return $"<missing {name}>";
+    }
+
     internal static IReadOnlyList<CardUpgradeCase> Cases { get; } =
     [
-        UpgradeTestHarness.Case<BloodBlade>(CardType.Attack, Damage(6, 9), RuntimeDamage(6, 9)),
+        UpgradeTestHarness.Case<BloodBlade>(
+            CardType.Attack,
+            Damage(6, 9),
+            RuntimeDamage(6, 9),
+            Power<BloodHarvestPower>(1, 1),
+            UpgradeTestHarness.Value("Strike tag", card => card.Tags.Contains(CardTag.Strike), true, true),
+            Source("harvest runtime", "DynamicVars.Power<BloodHarvestPower>().BaseValue", "CommonActions.Apply<BloodHarvestPower>")),
+        UpgradeTestHarness.Case<BloodlinePuncture>(CardType.Attack, Damage(6, 9), RuntimeDamage(6, 9), Cards(1, 1), Power<BloodHarvestPower>(2, 2), Power<BloodlossPower>(2, 2)),
         UpgradeTestHarness.Case<BloodClawSlash>(CardType.Attack, Damage(3, 4), RuntimeDamage(3, 4)),
         UpgradeTestHarness.Case<BloodDissect>(CardType.Attack, Damage(9, 12), RuntimeDamage(9, 12), Power<BloodHarvestPower>(3, 4, "ExtraDamage"), Source("ExtraDamage runtime", "DynamicVars.Var<PowerVar<BloodHarvestPower>>(\"ExtraDamage\").BaseValue", "new AttackCommand(extraDamage)")),
         UpgradeTestHarness.Case<BloodDrain>(CardType.Attack, Damage(8, 11), RuntimeDamage(8, 11), Power<BloodHarvestPower>(1, 2), Source("harvest runtime", "var harvestAmount = DynamicVars.Power<BloodHarvestPower>().BaseValue", "CommonActions.Apply<BloodHarvestPower>")),
-        UpgradeTestHarness.Case<BloodFrenzy>(CardType.Attack, Damage(3, 4), RuntimeDamage(3, 4)),
+        UpgradeTestHarness.Case<BloodFrenzy>(CardType.Attack, Damage(3, 4), RuntimeDamage(3, 4), UpgradeTestHarness.Value("energy cost", card => card.EnergyCost.GetAmountToSpend(), 3m, 2m)),
         UpgradeTestHarness.Case<BloodSplash>(CardType.Attack, Damage(5, 7), RuntimeDamage(5, 7), Power<BloodHarvestPower>(1, 2), Source("harvest runtime", "CommonActions.Apply<BloodHarvestPower>", "DynamicVars.Power<BloodHarvestPower>().BaseValue")),
-        UpgradeTestHarness.Case<BloodStorm>(CardType.Attack, Damage(16, 20), RuntimeDamage(16, 20), Power<BloodlossPower>(2, 3), Source("bloodloss runtime", "CommonActions.Apply<BloodlossPower>", "DynamicVars.Power<BloodlossPower>().BaseValue")),
+        UpgradeTestHarness.Case<BloodStorm>(CardType.Attack, Damage(16, 20), RuntimeDamage(16, 20), Property("HpCost", 4m, 4m), Power<BloodlossPower>(2, 3), Source("bloodloss runtime", "CommonActions.Apply<BloodlossPower>", "DynamicVars.Power<BloodlossPower>().BaseValue")),
         UpgradeTestHarness.Case<BloodStrike>(CardType.Attack, Damage(10, 14), RuntimeDamage(10, 14)),
-        UpgradeTestHarness.Case<BloodSurge>(CardType.Attack, Damage(6, 9), RuntimeDamage(6, 9)),
+        UpgradeTestHarness.Case<BloodSurge>(CardType.Attack, Damage(6, 9), RuntimeDamage(6, 9), Property("HpCost", 3m, 3m)),
         UpgradeTestHarness.Case<BloodSweep>(CardType.Attack, Damage(12, 16), RuntimeDamage(12, 16), Power<HeartCandlePower>(8, 12), Source("heart candle runtime", "HeartCandlePower.ApplyPercent", "DynamicVars.Power<HeartCandlePower>().BaseValue")),
         UpgradeTestHarness.Case<CandleScorch>(CardType.Attack, Damage(7, 9), RuntimeDamage(7, 9), Power<HeartCandlePower>(5, 8), Source("heart candle runtime", "HeartCandlePower.ApplyPercent", "DynamicVars.Power<HeartCandlePower>().BaseValue")),
         UpgradeTestHarness.Case<CounterSlash>(CardType.Attack, Damage(8, 10), RuntimeDamage(8, 10), Cards(0, 1), Energy(1, 1), Source("draw and energy runtime values", "PlayerCmd.GainEnergy(DynamicVars.Energy.BaseValue, Owner)", "DrawCards(context, DynamicVars.Cards.BaseValue)")),
@@ -66,8 +89,15 @@ internal static class AttackUpgradeExpectations
         UpgradeTestHarness.Case<Lacerate>(CardType.Attack, Damage(8, 11), RuntimeDamage(8, 11), Power<BloodlossPower>(3, 4), Power<BloodlossPower>(2, 3, "HpLoss"), Source("HpLoss runtime", "TurnStateTracker.LoseHpTracking", "DynamicVars.Var<PowerVar<BloodlossPower>>(\"HpLoss\").BaseValue")),
         UpgradeTestHarness.Case<RedCandleAll>(CardType.Attack, Damage(7, 9), RuntimeDamage(7, 9)),
         UpgradeTestHarness.Case<RoseThorn>(CardType.Attack, Damage(3, 5), RuntimeDamage(3, 5), Cards(1, 1)),
-        UpgradeTestHarness.Case<RoseTrail>(CardType.Attack, Damage(4, 5), RuntimeDamage(4, 5), Power<BloodHarvestPower>(2, 3), Power<BloodlossPower>(1, 1), Source("bloodloss runtime", "CommonActions.Apply<BloodlossPower>", "DynamicVars.Power<BloodlossPower>().BaseValue")),
-        UpgradeTestHarness.Case<SoulBloodDraw>(CardType.Attack, Damage(16, 21), RuntimeDamage(16, 21), Heal(6, 8), Cards(1, 1), Energy(1, 1), Source("heal draw and energy actions", "TurnStateTracker.HealTracking(Owner.Creature, DynamicVars.Heal.BaseValue", "PlayerCmd.GainEnergy(1, Owner)", "DrawCards(context, DynamicVars.Cards.BaseValue)")),
-        UpgradeTestHarness.Case<SpiritAndDesireFarewell>(CardType.Attack, Damage(10, 12), RuntimeDamage(10, 12), Power<HeartCandlePower>(12, 18), Source("heart candle runtime", "HeartCandlePower.ApplyPercent", "DynamicVars.Power<HeartCandlePower>().BaseValue"))
+        UpgradeTestHarness.Case<RoseTrail>(
+            CardType.Attack,
+            Damage(3, 4),
+            RuntimeDamage(3, 4),
+            Power<BloodHarvestPower>(2, 3),
+            Power<BloodlossPower>(1, 1),
+            UpgradeTestHarness.Value("energy cost", card => card.EnergyCost.GetAmountToSpend(), 0m, 0m),
+            Source("bloodloss runtime", "CommonActions.Apply<BloodlossPower>", "DynamicVars.Power<BloodlossPower>().BaseValue")),
+        UpgradeTestHarness.Case<SoulBloodDraw>(CardType.Attack, Damage(16, 16), RuntimeDamage(16, 16), Heal(6, 8), Cards(1, 1), Energy(1, 1), UpgradeTestHarness.Value("energy cost", card => card.EnergyCost.GetAmountToSpend(), 2m, 1m), Source("heal draw and energy actions", "TurnStateTracker.HealTracking(Owner.Creature, DynamicVars.Heal.BaseValue", "PlayerCmd.GainEnergy(1, Owner)", "DrawCards(context, DynamicVars.Cards.BaseValue)")),
+        UpgradeTestHarness.Case<SpiritAndDesireFarewell>(CardType.Attack, Damage(10, 10), RuntimeDamage(10, 10), Power<HeartCandlePower>(12, 12), UpgradeTestHarness.Value("energy cost", card => card.EnergyCost.GetAmountToSpend(), 3m, 2m), Source("heart candle runtime", "HeartCandlePower.ApplyPercent", "DynamicVars.Power<HeartCandlePower>().BaseValue"))
     ];
 }
