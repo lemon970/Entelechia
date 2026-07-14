@@ -26,8 +26,8 @@ public class BloodSweep : EntelechiaCard
 
     protected override async Task OnPlay(PlayerChoiceContext context, CardPlay cardPlay)
     {
-        var targets = this.GetTargets().ToList();
         var lowHealth = IsLowHealth();
+        var targets = this.GetTargets().ToList();
         var candleTargets = 0;
         await ExecuteCardAttack(context, cardPlay);
         foreach (var target in targets.Where(target => target.CurrentHp > 0))
@@ -39,7 +39,12 @@ public class BloodSweep : EntelechiaCard
             }
         }
 
-        if (lowHealth && candleTargets >= 2)
-            await PlayerCmd.GainEnergy(1, Owner);
+        if (candleTargets >= 2)
+        {
+            if (lowHealth)
+                await PlayerCmd.GainEnergy(1, Owner);
+            else
+                await DrawCards(context, 1);
+        }
     }
 }

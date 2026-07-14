@@ -13,6 +13,7 @@ public class ImmortalBloodline : EntelechiaCard
     public ImmortalBloodline() : base(1, CardType.Skill, CardRarity.Rare, TargetType.None)
     {
         WithPower<ImmortalBloodlinePower>(4);
+        WithKeyword(CardKeyword.Exhaust);
     }
 
     protected override void OnUpgrade()
@@ -22,10 +23,8 @@ public class ImmortalBloodline : EntelechiaCard
 
     protected override async Task OnPlay(PlayerChoiceContext context, CardPlay cardPlay)
     {
-        var refundEnergy = IsLowHealth();
         await CommonActions.Apply<ImmortalBloodlinePower>(context, Owner.Creature, this, DynamicVars.Power<ImmortalBloodlinePower>().BaseValue, true);
-        await CardCmd.Exhaust(context, this, false, false);
-        if (refundEnergy)
+        if (IsLowHealth())
             await PlayerCmd.GainEnergy(1, Owner);
     }
 }

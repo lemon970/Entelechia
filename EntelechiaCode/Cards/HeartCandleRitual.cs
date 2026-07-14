@@ -13,6 +13,7 @@ public class HeartCandleRitual : EntelechiaCard
     public HeartCandleRitual() : base(0, CardType.Skill, CardRarity.Uncommon, TargetType.AnyEnemy)
     {
         WithPower<HeartCandlePower>(18);
+        WithKeyword(CardKeyword.Exhaust);
     }
 
     protected override void OnUpgrade()
@@ -24,6 +25,5 @@ public class HeartCandleRitual : EntelechiaCard
     {
         if (cardPlay.Target != null)
             await HeartCandlePower.ApplyPercent(context, cardPlay.Target, this, DynamicVars.Power<HeartCandlePower>().BaseValue, true);
-        await CardCmd.Exhaust(context, this, false, false);
     }
 }

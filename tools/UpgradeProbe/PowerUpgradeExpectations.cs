@@ -12,13 +12,13 @@ internal static class PowerUpgradeExpectations
     [
         UpgradeTestHarness.Case<BloodClanCourt>(
             CardType.Power,
-            UpgradeTestHarness.Value("energy cost", EnergyCost, 2m, 2m),
-            UpgradeTestHarness.Value("cards", Cards, 0m, 1m),
+            UpgradeTestHarness.Value("energy cost", EnergyCost, 2m, 1m),
             UpgradeTestHarness.Value("runtime Bloodloss amount", RuntimeValue("RuntimePowerAmount"), 2m, 2m)),
         UpgradeTestHarness.Case<BloodDemonForm>(
             CardType.Power,
             UpgradeTestHarness.Value("energy cost", EnergyCost, 2m, 2m),
             UpgradeTestHarness.Value("immediate Strength", Power<StrengthPower>, 1m, 2m),
+            UpgradeTestHarness.Value("Heart Candle percent", Power<HeartCandlePower>, 10m, 12m),
             UpgradeTestHarness.Value("runtime power amount", RuntimeValue("RuntimePowerAmount"), 1m, 1m)),
         UpgradeTestHarness.Case<BloodFeast>(
             CardType.Power,
@@ -36,11 +36,16 @@ internal static class PowerUpgradeExpectations
             CardType.Power,
             UpgradeTestHarness.Value("energy cost", EnergyCost, 1m, 1m),
             UpgradeTestHarness.Value("power amount", Power<EternalRepletePower>, 1m, 1m),
-            UpgradeTestHarness.Value("runtime heal ratio", RuntimeValue("RuntimeHealRatio"), 0.50m, 0.55m)),
+            UpgradeTestHarness.Value("runtime heal ratio", RuntimeValue("RuntimeHealRatio"), 0.50m, 0.55m),
+            UpgradeTestHarness.Value("runtime ember harvest", RuntimeValue("RuntimeEmberHarvestAmount"), 2m, 3m)),
         UpgradeTestHarness.Case<PainConversion>(
             CardType.Power,
             UpgradeTestHarness.Value("power amount", Power<PainConversionPower>, 1m, 2m),
-            UpgradeTestHarness.Value("runtime triggers per turn", RuntimeValue("RuntimePowerAmount"), 1m, 2m))
+            UpgradeTestHarness.Value("runtime triggers per turn", RuntimeValue("RuntimePowerAmount"), 1m, 2m)),
+        UpgradeTestHarness.Case<ResidualPulseConduit>(
+            CardType.Power,
+            UpgradeTestHarness.Value("energy cost", EnergyCost, 1m, 0m),
+            UpgradeTestHarness.Value("power amount", Power<ResidualPulseConduitPower>, 1m, 1m))
     ];
 
     private static object EnergyCost(EntelechiaCard card) => card.EnergyCost.GetAmountToSpend();

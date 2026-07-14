@@ -11,28 +11,25 @@ public class CounterSlash : EntelechiaCard
 {
     protected override decimal BaseDamage => DynamicVars.Damage.BaseValue;
 
-    public CounterSlash() : base(1, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy)
+    public CounterSlash() : base(1, CardType.Attack, CardRarity.Uncommon, TargetType.AnyEnemy)
     {
         WithDamage(8);
-        WithCards(0);
+        WithCards(1);
         WithEnergy(1);
     }
 
     protected override void OnUpgrade()
     {
         DynamicVars.Damage.UpgradeValueBy(2);
-        DynamicVars.Cards.UpgradeValueBy(1);
     }
 
     protected override async Task OnPlay(PlayerChoiceContext context, CardPlay cardPlay)
     {
-        var lowHealth = IsLowHealth();
         await ExecuteCardAttack(context, cardPlay);
-        if (lowHealth || TurnStateTracker.LostHpThisTurn)
-        {
+
+        if (IsLowHealth())
             await PlayerCmd.GainEnergy(DynamicVars.Energy.BaseValue, Owner);
-            if (DynamicVars.Cards.BaseValue > 0)
-                await DrawCards(context, DynamicVars.Cards.BaseValue);
-        }
+        if (TurnStateTracker.LostHpThisTurnFor(Owner.Creature))
+            await DrawCards(context, DynamicVars.Cards.BaseValue);
     }
 }

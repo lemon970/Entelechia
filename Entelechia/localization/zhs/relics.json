@@ -1,8 +1,8 @@
 {
   "ENTELECHIA-BLOOD_DEMON_REPLETE.title": "血魔重盈",
-  "ENTELECHIA-BLOOD_DEMON_REPLETE.description": "在休息处休息不会回复生命。每场战斗第一次你将要死亡时，改为保留 1 点生命，回复至最大生命的 40%，清除自身的易伤和虚弱，获得 3 层绯红庇护与 2 层血速，对所有敌人施加 3 层萃血，并获得 1 层余烬血脉。",
+  "ENTELECHIA-BLOOD_DEMON_REPLETE.description": "在休息处休息不会回复生命。每个地图楼层限一次：你将要死亡时，改为保留 1 点生命并回复至最大生命的 40%（可由永续重盈调整），清除易伤和虚弱，抽 2 张牌，获得 2 点能量，并对所有敌人施加 3 层萃血。此后直到离开该楼层，受到的攻击伤害降低 25%。",
   "ENTELECHIA-BLOOD_DEMON_REPLETE.flavor": "血不肯沉默。",
   "BLOOD_DEMON_REPLETE.title": "血魔重盈",
-  "BLOOD_DEMON_REPLETE.description": "在休息处休息不会回复生命。每场战斗第一次你将要死亡时，改为保留 1 点生命，回复至最大生命的 40%，清除自身的易伤和虚弱，获得 3 层绯红庇护与 2 层血速，对所有敌人施加 3 层萃血，并获得 1 层余烬血脉。",
+  "BLOOD_DEMON_REPLETE.description": "在休息处休息不会回复生命。每个地图楼层限一次：你将要死亡时，改为保留 1 点生命并回复至最大生命的 40%（可由永续重盈调整），清除易伤和虚弱，抽 2 张牌，获得 2 点能量，并对所有敌人施加 3 层萃血。此后直到离开该楼层，受到的攻击伤害降低 25%。",
   "BLOOD_DEMON_REPLETE.flavor": "血不肯沉默。"
 }

@@ -12,9 +12,10 @@ public class Suture : EntelechiaCard
     private decimal _conditionalBlock = 4m;
     private decimal ConditionalBlock => _conditionalBlock;
 
-    public Suture() : base(1, CardType.Skill, CardRarity.Common, TargetType.None)
+    public Suture() : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.None)
     {
         WithBlock(7);
+        WithTip(CardKeyword.Exhaust);
     }
 
     protected override void OnUpgrade()
@@ -25,12 +26,10 @@ public class Suture : EntelechiaCard
 
     protected override async Task OnPlay(PlayerChoiceContext context, CardPlay cardPlay)
     {
-        var lowHealth = IsLowHealth();
         await CommonActions.CardBlock(this, cardPlay);
-        if (lowHealth || TurnStateTracker.HealedThisTurn)
+        if (IsLowHealth() || TurnStateTracker.HealedThisTurnFor(Owner.Creature))
             await CreatureCmd.GainBlock(Owner.Creature, ConditionalBlock, default, cardPlay, false);
 
-        if (await TryExhaustAnotherCard(context))
-            await DrawCards(context, 1m);
+        await TryExhaustAnotherCard(context);
     }
 }

@@ -10,7 +10,7 @@ namespace Entelechia.EntelechiaCode.Cards;
 
 public class BloodFragrance : EntelechiaCard
 {
-    public BloodFragrance() : base(1, CardType.Skill, CardRarity.Common, TargetType.AnyEnemy)
+    public BloodFragrance() : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.AnyEnemy)
     {
         WithPower<BloodHarvestPower>(2);
         WithPower<BloodlossPower>(2);

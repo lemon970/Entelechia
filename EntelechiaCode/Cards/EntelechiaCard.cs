@@ -18,9 +18,49 @@ using MegaCrit.Sts2.Core.ValueProps;
 namespace Entelechia.EntelechiaCode.Cards;
 
 [Pool(typeof(EntelechiaCardPool))]
-public abstract class EntelechiaCard(int cost, CardType type, CardRarity rarity, TargetType target) :
-    ConstructedCardModel(cost, type, rarity, target)
+public abstract class EntelechiaCard : ConstructedCardModel
 {
+    private static readonly HashSet<Type> HealthStateCardTypes =
+    [
+        typeof(BloodVeil),
+        typeof(BloodMend),
+        typeof(CrimsonLash),
+        typeof(BloodFrenzy),
+        typeof(BloodDrain),
+        typeof(CrimsonShield),
+        typeof(BloodStorm),
+        typeof(Lacerate),
+        typeof(BloodFragrance),
+        typeof(BloodOverload),
+        typeof(EntelechiaBloodletting),
+        typeof(BloodBorrow),
+        typeof(BloodDebtSettlement),
+        typeof(CrimsonEmbers),
+        typeof(BloodToCandle),
+        typeof(CandleEmber),
+        typeof(SoulBloodDraw),
+        typeof(BloodSweep),
+        typeof(CounterSlash),
+        typeof(Suture),
+        typeof(BloodlinePuncture),
+        typeof(BloodRebuild),
+        typeof(PainConversion),
+        typeof(BloodDissect),
+        typeof(CrimsonMerge),
+        typeof(ClottingBarrier),
+        typeof(ClottingBackflow),
+        typeof(EternalReplete),
+        typeof(ImmortalBloodline),
+        typeof(SanguineRite)
+    ];
+
+    protected EntelechiaCard(int cost, CardType type, CardRarity rarity, TargetType target)
+        : base(cost, type, rarity, target)
+    {
+        if (HealthStateCardTypes.Contains(GetType()))
+            WithKeywords(EntelechiaKeywords.HighHealth, EntelechiaKeywords.LowHealth);
+    }
+
     public override string CustomPortraitPath => $"{Id.Entry.RemovePrefix().ToLowerInvariant()}.png".BigCardImagePath();
     public override string PortraitPath => $"{Id.Entry.RemovePrefix().ToLowerInvariant()}.png".CardImagePath();
     public override string BetaPortraitPath => $"beta/{Id.Entry.RemovePrefix().ToLowerInvariant()}.png".CardImagePath();

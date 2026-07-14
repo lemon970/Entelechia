@@ -26,6 +26,12 @@ public class BloodFeastPower : EntelechiaPower
     public int Threshold { get; set; } = 4;
     public bool TriggeredThisTurn { get; set; }
 
+    public override Task AfterApplied(Creature? applier, CardModel? cardSource)
+    {
+        SetAmount(HitCount, false);
+        return Task.CompletedTask;
+    }
+
     public override Task AfterPlayerTurnStart(PlayerChoiceContext choiceContext, Player player)
     {
         if (player.Creature == Owner)
@@ -33,6 +39,7 @@ public class BloodFeastPower : EntelechiaPower
             HitCount = 0;
             TriggeredThisTurn = false;
             _countedHitsByPlay.Clear();
+            SetAmount(HitCount, false);
         }
         return Task.CompletedTask;
     }
@@ -103,6 +110,7 @@ public class BloodFeastPower : EntelechiaPower
     {
         if (TriggeredThisTurn) return;
         HitCount++;
+        SetAmount(HitCount, false);
         if (HitCount >= Threshold)
         {
             TriggeredThisTurn = true;
@@ -116,6 +124,7 @@ public class BloodFeastPower : EntelechiaPower
     {
         if (TriggeredThisTurn) return;
         HitCount++;
+        SetAmount(HitCount, false);
         if (HitCount >= Threshold)
         {
             TriggeredThisTurn = true;

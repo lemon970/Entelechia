@@ -9,7 +9,7 @@ namespace Entelechia.EntelechiaCode.Cards;
 
 public class ClotInstinct : EntelechiaCard
 {
-    public ClotInstinct() : base(1, CardType.Power, CardRarity.Common, TargetType.None)
+    public ClotInstinct() : base(1, CardType.Power, CardRarity.Uncommon, TargetType.None)
     {
         WithPower<ClotInstinctPower>(4);
     }

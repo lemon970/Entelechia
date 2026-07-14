@@ -1,3 +1,6 @@
 {
-  
+  "ENTELECHIA-HIGHHEALTH.title": "高血",
+  "ENTELECHIA-HIGHHEALTH.description": "当前生命高于最大生命的 50%。",
+  "ENTELECHIA-LOWHEALTH.title": "低血",
+  "ENTELECHIA-LOWHEALTH.description": "当前生命不高于最大生命的 50%；恰好半血属于低血。"
 }

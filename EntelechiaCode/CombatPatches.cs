@@ -21,6 +21,9 @@ namespace Entelechia.EntelechiaCode;
 /// </summary>
 public static class TurnStateTracker
 {
+    private static readonly HashSet<Creature> CreaturesThatLostHp = [];
+    private static readonly HashSet<Creature> CreaturesThatHealed = [];
+
     public static bool LostHpThisTurn;
     public static bool HealedThisTurn;
     public static decimal HpLostThisTurn;
@@ -28,6 +31,8 @@ public static class TurnStateTracker
 
     public static void Reset()
     {
+        CreaturesThatLostHp.Clear();
+        CreaturesThatHealed.Clear();
         LostHpThisTurn = false;
         HealedThisTurn = false;
         HpLostThisTurn = 0m;
@@ -50,6 +55,12 @@ public static class TurnStateTracker
 
         return CombatManager.Instance.IsPartOfPlayerTurn(player);
     }
+
+    public static bool LostHpThisTurnFor(Creature? creature)
+        => creature != null && CreaturesThatLostHp.Contains(creature);
+
+    public static bool HealedThisTurnFor(Creature? creature)
+        => creature != null && CreaturesThatHealed.Contains(creature);
 
     public static async Task SetCurrentHpTracking(Creature creature, decimal hp)
     {
@@ -93,11 +104,13 @@ public static class TurnStateTracker
         if (!IsPlayerCreature(creature) || delta == 0) return;
         if (delta < 0)
         {
+            CreaturesThatLostHp.Add(creature);
             LostHpThisTurn = true;
             HpLostThisTurn += -delta;
         }
         else
         {
+            CreaturesThatHealed.Add(creature);
             HealedThisTurn = true;
             HpHealedThisTurn += delta;
         }

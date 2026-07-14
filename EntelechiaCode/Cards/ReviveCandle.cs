@@ -16,6 +16,7 @@ public class ReviveCandle : EntelechiaCard
     public ReviveCandle() : base(0, CardType.Skill, CardRarity.Rare, TargetType.AnyEnemy)
     {
         WithPower<HeartCandlePower>(50);
+        WithKeyword(CardKeyword.Exhaust);
     }
 
     protected override void OnUpgrade()
@@ -40,6 +41,5 @@ public class ReviveCandle : EntelechiaCard
                 await DrawCards(context, 1);
             }
         }
-        await CardCmd.Exhaust(context, this, false, false);
     }
 }

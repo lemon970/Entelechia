@@ -14,11 +14,15 @@ public class BloodDemonForm : EntelechiaCard
     {
         WithPower<BloodDemonFormPower>(1);
         WithPower<StrengthPower>(1);
+        WithPower<HeartCandlePower>(10);
+        WithPower<BloodSpeedPower>(BloodDemonFormPower.BloodSpeedPerStack);
+        WithPower<BloodDemonFormPower>("MultiplierBonus", BloodDemonFormPower.HeartCandleMultiplierBonusPercentPerStack);
     }
 
     protected override void OnUpgrade()
     {
         DynamicVars.Power<StrengthPower>().UpgradeValueBy(1);
+        DynamicVars.Power<HeartCandlePower>().UpgradeValueBy(2);
     }
 
     public decimal RuntimePowerAmount => DynamicVars.Power<BloodDemonFormPower>().BaseValue;
@@ -27,5 +31,8 @@ public class BloodDemonForm : EntelechiaCard
     {
         await CommonActions.Apply<StrengthPower>(context, Owner.Creature, this, DynamicVars.Power<StrengthPower>().BaseValue, true);
         await CommonActions.Apply<BloodDemonFormPower>(context, Owner.Creature, this, RuntimePowerAmount, true);
+        var form = Owner.Creature.Powers?.OfType<BloodDemonFormPower>().FirstOrDefault();
+        if (form != null)
+            form.HeartCandlePercent += DynamicVars.Power<HeartCandlePower>().BaseValue;
     }
 }

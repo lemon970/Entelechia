@@ -24,7 +24,6 @@ public class HeartCandlePower : EntelechiaPower
     private const decimal MonsterMultiplier = 2.0m;
     private const decimal EliteMultiplier = 2.5m;
     private const decimal BossMultiplier = 3.0m;
-    private const decimal BloodDemonBonusPerStack = 0.5m;
     private const decimal RedCandleAllBonus = 0.75m;
 
     private static readonly AsyncLocal<bool> ResolvingHeartCandle = new();
@@ -91,7 +90,7 @@ public class HeartCandlePower : EntelechiaPower
         };
 
         var formStacks = dealer.Powers?.OfType<BloodDemonFormPower>().FirstOrDefault()?.Amount ?? 0m;
-        var formBonus = formStacks * BloodDemonBonusPerStack;
+        var formBonus = formStacks * BloodDemonFormPower.HeartCandleMultiplierBonusPerStack;
         var redCandleBonus = cardSource is RedCandleAll ? RedCandleAllBonus : 0m;
         return baseMultiplier + formBonus + redCandleBonus;
     }

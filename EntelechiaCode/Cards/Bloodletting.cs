@@ -18,6 +18,7 @@ public class EntelechiaBloodletting : EntelechiaCard
     {
         WithPower<BloodSpeedPower>(1);
         WithPower<BloodlettingStrengthPower>(2);
+        WithKeyword(CardKeyword.Exhaust, UpgradeType.Remove);
     }
 
     protected override void OnUpgrade()
@@ -27,13 +28,15 @@ public class EntelechiaBloodletting : EntelechiaCard
 
     protected override async Task OnPlay(PlayerChoiceContext context, CardPlay cardPlay)
     {
-        if (!await TryPayHpCost(context, HpCost, cardPlay)) return;
         var lowHealth = IsLowHealth();
+        if (!await TryPayHpCost(context, HpCost, cardPlay)) return;
 
-        await CardCmd.Exhaust(context, this, false, false);
         await CommonActions.Apply<BloodlettingStrengthPower>(context, Owner.Creature, this, DynamicVars.Power<BloodlettingStrengthPower>().BaseValue, true);
         await CommonActions.Apply<BloodSpeedPower>(context, Owner.Creature, this, DynamicVars.Power<BloodSpeedPower>().BaseValue + (lowHealth ? 1 : 0), true);
 
-        await DrawCards(context, 1);
+        if (lowHealth)
+            await PlayerCmd.GainEnergy(1, Owner);
+        else
+            await DrawCards(context, 1);
     }
 }

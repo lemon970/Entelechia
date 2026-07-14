@@ -9,11 +9,11 @@ namespace Entelechia.EntelechiaCode.Cards;
 
 public class BloodPulse : EntelechiaCard
 {
-    protected override decimal HpCost => 3m;
+    protected override decimal HpCost => 5m;
 
     public BloodPulse() : base(1, CardType.Skill, CardRarity.Common, TargetType.None)
     {
-        WithCards(2);
+        WithCards(1);
     }
 
     protected override void OnUpgrade()

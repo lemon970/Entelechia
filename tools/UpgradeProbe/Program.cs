@@ -157,10 +157,10 @@ foreach (var language in new[] { "zhs", "eng" })
 
 var expectedDiscontinuousPulseZhs = new Dictionary<string, string>
 {
-    ["ENTELECHIA-DISCONTINUOUS_PULSE.description"] = "你可以消耗至多 1 张其他手牌。若消耗了牌，抽 2 张牌。无论是否消耗牌，移除首个拥有萃血的存活敌人的 1 层萃血，再对其施加 {IfUpgraded:cond:=1?[green]{BloodlossPower}[/green]|{BloodlossPower:diff()}} 层失血。",
-    ["ENTELECHIA-DISCONTINUOUS_PULSE.description+"] = "你可以消耗至多 1 张其他手牌。若消耗了牌，抽 2 张牌。无论是否消耗牌，移除首个拥有萃血的存活敌人的 1 层萃血，再对其施加 3 层失血。",
-    ["DISCONTINUOUS_PULSE.description"] = "你可以消耗至多 1 张其他手牌。若消耗了牌，抽 2 张牌。无论是否消耗牌，移除首个拥有萃血的存活敌人的 1 层萃血，再对其施加 {IfUpgraded:cond:=1?[green]{BloodlossPower}[/green]|{BloodlossPower:diff()}} 层失血。",
-    ["DISCONTINUOUS_PULSE.description+"] = "你可以消耗至多 1 张其他手牌。若消耗了牌，抽 2 张牌。无论是否消耗牌，移除首个拥有萃血的存活敌人的 1 层萃血，再对其施加 3 层失血。"
+    ["ENTELECHIA-DISCONTINUOUS_PULSE.description"] = "你可以[gold]消耗[/gold]至多 1 张其他手牌。若如此做，抽 2 张牌。无论是否如此做，移除首个拥有萃血的存活敌人的 1 层萃血，再对其施加 {IfUpgraded:cond:=1?[green]{BloodlossPower}[/green]|{BloodlossPower:diff()}} 层失血。",
+    ["ENTELECHIA-DISCONTINUOUS_PULSE.description+"] = "你可以[gold]消耗[/gold]至多 1 张其他手牌。若如此做，抽 2 张牌。无论是否如此做，移除首个拥有萃血的存活敌人的 1 层萃血，再对其施加 3 层失血。",
+    ["DISCONTINUOUS_PULSE.description"] = "你可以[gold]消耗[/gold]至多 1 张其他手牌。若如此做，抽 2 张牌。无论是否如此做，移除首个拥有萃血的存活敌人的 1 层萃血，再对其施加 {IfUpgraded:cond:=1?[green]{BloodlossPower}[/green]|{BloodlossPower:diff()}} 层失血。",
+    ["DISCONTINUOUS_PULSE.description+"] = "你可以[gold]消耗[/gold]至多 1 张其他手牌。若如此做，抽 2 张牌。无论是否如此做，移除首个拥有萃血的存活敌人的 1 层萃血，再对其施加 3 层失血。"
 };
 using (var document = JsonDocument.Parse(File.ReadAllText(Path.Combine(
            Directory.GetCurrentDirectory(), "Entelechia", "localization", "zhs", "cards.json"))))
@@ -168,6 +168,87 @@ using (var document = JsonDocument.Parse(File.ReadAllText(Path.Combine(
     foreach (var (key, expected) in expectedDiscontinuousPulseZhs)
         CheckText($"zhs {key}", document.RootElement.GetProperty(key).GetString() ?? string.Empty, expected);
 }
+
+void CheckExhaustLocalization(string language)
+{
+    var path = Path.Combine(
+        Directory.GetCurrentDirectory(), "Entelechia", "localization", language, "cards.json");
+    using var document = JsonDocument.Parse(File.ReadAllText(path));
+    var root = document.RootElement;
+    var automaticKeywordCards = new[]
+    {
+        "BLOOD_DEBT_SETTLEMENT",
+        "ENTELECHIA_BLOODLETTING",
+        "BLOOD_OVERLOAD",
+        "BLOOD_REBUILD",
+        "CRIMSON_SACRIFICE",
+        "HEART_CANDLE_RITUAL",
+        "IMMORTAL_BLOODLINE",
+        "RESIDUAL_PULSE",
+        "REVIVE_CANDLE"
+    };
+
+    foreach (var cardId in automaticKeywordCards)
+    {
+        foreach (var prefix in new[] { string.Empty, "ENTELECHIA-" })
+        foreach (var suffix in new[] { ".description", ".description+" })
+        {
+            var key = prefix + cardId + suffix;
+            var description = root.GetProperty(key).GetString() ?? string.Empty;
+            if (description.EndsWith("消耗。", StringComparison.Ordinal)
+                || description.EndsWith("Exhaust.", StringComparison.Ordinal)
+                || description.Contains("{IfUpgraded:cond:>0?|消耗。}", StringComparison.Ordinal)
+                || description.Contains("{IfUpgraded:cond:>0?|Exhaust.}", StringComparison.Ordinal))
+            {
+                failures.Add($"{language} {key}: Exhaust must come from CardKeyword.Exhaust, not handwritten text");
+            }
+        }
+    }
+
+    var explicitToken = language == "zhs" ? "[gold]消耗[/gold]" : "[gold]Exhaust[/gold]";
+    foreach (var cardId in new[] { "DISCONTINUOUS_PULSE", "SUTURE" })
+    {
+        foreach (var prefix in new[] { string.Empty, "ENTELECHIA-" })
+        foreach (var suffix in new[] { ".description", ".description+" })
+        {
+            var key = prefix + cardId + suffix;
+            var description = root.GetProperty(key).GetString() ?? string.Empty;
+            if (!description.Contains(explicitToken, StringComparison.Ordinal))
+                failures.Add($"{language} {key}: missing explicit conditional/other-card Exhaust token {explicitToken}");
+        }
+    }
+}
+
+void CheckHealthTimingLocalization(string language)
+{
+    var path = Path.Combine(
+        Directory.GetCurrentDirectory(), "Entelechia", "localization", language, "cards.json");
+    using var document = JsonDocument.Parse(File.ReadAllText(path));
+
+    foreach (var property in document.RootElement.EnumerateObject())
+    {
+        if (!property.Name.Contains(".description", StringComparison.Ordinal))
+            continue;
+
+        var description = property.Value.GetString() ?? string.Empty;
+        foreach (var forbidden in new[]
+                 {
+                     "按打出时的血量",
+                     "若打出时生命不高于",
+                     "Based on your Health when played",
+                     "If played at 50% HP or less"
+                 })
+        {
+            if (description.Contains(forbidden, StringComparison.Ordinal))
+                failures.Add($"{language} {property.Name}: obsolete health timing phrase '{forbidden}'");
+        }
+    }
+}
+
+CheckExhaustLocalization("zhs");
+CheckExhaustLocalization("eng");
+CheckHealthTimingLocalization("zhs");
+CheckHealthTimingLocalization("eng");
 
 void CheckCardLocalizationAliases(string language)
 {
@@ -223,6 +304,29 @@ void CheckCardLocalizationAliases(string language)
 
 CheckCardLocalizationAliases("zhs");
 CheckCardLocalizationAliases("eng");
+
+void CheckCardRarityDistribution()
+{
+    var counts = typeof(EntelechiaCard).Assembly.GetTypes()
+        .Where(type => !type.IsAbstract && typeof(EntelechiaCard).IsAssignableFrom(type))
+        .Select(type => (EntelechiaCard)Activator.CreateInstance(type)!)
+        .GroupBy(card => card.Rarity.ToString())
+        .ToDictionary(group => group.Key, group => (decimal)group.Count(), StringComparer.Ordinal);
+
+    foreach (var (rarity, expected) in new Dictionary<string, decimal>
+             {
+                 ["Basic"] = 4m,
+                 ["Common"] = 17m,
+                 ["Uncommon"] = 26m,
+                 ["Rare"] = 12m,
+                 ["Token"] = 1m
+             })
+    {
+        Check($"card rarity {rarity}", counts.GetValueOrDefault(rarity), expected);
+    }
+}
+
+CheckCardRarityDistribution();
 
 void CheckTemporaryStrengthLocalizationAliases(string language)
 {

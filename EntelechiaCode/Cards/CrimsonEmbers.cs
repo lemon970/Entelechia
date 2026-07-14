@@ -26,7 +26,7 @@ public class CrimsonEmbers : EntelechiaCard
     {
         var lowHealth = IsLowHealth();
         await TurnStateTracker.HealTracking(Owner.Creature, DynamicVars.Heal.BaseValue, true);
-        if (lowHealth || TurnStateTracker.LostHpThisTurn)
+        if (lowHealth || TurnStateTracker.LostHpThisTurnFor(Owner.Creature))
             await CreatureCmd.GainBlock(Owner.Creature, DynamicVars.Block.BaseValue, default, cardPlay, false);
     }
 }

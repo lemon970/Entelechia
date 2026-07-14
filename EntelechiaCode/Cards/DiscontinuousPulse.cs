@@ -15,6 +15,7 @@ public class DiscontinuousPulse : EntelechiaCard
     public DiscontinuousPulse() : base(0, CardType.Skill, CardRarity.Basic, TargetType.None)
     {
         WithPower<BloodlossPower>(2);
+        WithTip(CardKeyword.Exhaust);
     }
 
     protected override void OnUpgrade()

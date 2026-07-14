@@ -25,22 +25,24 @@ public class ClottingBackflow : EntelechiaCard
         if (target == null) return;
 
         var harvest = target.Powers?.FirstOrDefault(power => power is BloodHarvestPower);
-        var lowHealth = IsLowHealth();
         if (harvest == null || harvest.Amount <= 0) return;
 
-        await CardCmd.Exhaust(context, this, false, false);
-
-        var toRemove = Math.Min((int)DynamicVars.Cards.BaseValue, (int)harvest.Amount);
+        var removalLimit = (int)DynamicVars.Cards.BaseValue;
+        var toRemove = Math.Min(removalLimit, (int)harvest.Amount);
         if (toRemove >= harvest.Amount)
             await PowerCmd.Remove(harvest);
         else
             await PowerCmd.ModifyAmount(context, harvest, -toRemove, Owner.Creature, this, false);
 
-        await DrawCards(context, toRemove);
-
-        await PlayerCmd.GainEnergy(1, Owner);
-
-        if (lowHealth)
+        if (IsLowHealth())
+        {
+            await DrawCards(context, 1);
+            await PlayerCmd.GainEnergy(1, Owner);
             await TurnStateTracker.HealTracking(Owner.Creature, Math.Min(toRemove * 2m, 6m), true);
+        }
+        else
+        {
+            await DrawCards(context, toRemove);
+        }
     }
 }

@@ -25,22 +25,27 @@ public class BloodToCandle : EntelechiaCard
     {
         if (cardPlay.Target == null) return;
 
-        var bloodloss = cardPlay.Target.Powers?.FirstOrDefault(p => p is BloodlossPower);
-        if (bloodloss == null || bloodloss.Amount <= 0) return;
+        var removedGroups = 0;
+        while (removedGroups < 4)
+        {
+            var bloodloss = cardPlay.Target.Powers?.FirstOrDefault(p => p is BloodlossPower);
+            if (bloodloss == null || bloodloss.Amount < 2) break;
 
-        var groups = Math.Min(4, (int)bloodloss.Amount / 2);
-        var toRemove = groups * 2;
-        if (toRemove <= 0) return;
+            if (bloodloss.Amount <= 2)
+                await PowerCmd.Remove(bloodloss);
+            else
+                await PowerCmd.ModifyAmount(context, bloodloss, -2, Owner.Creature, this, false);
 
-        if (toRemove >= bloodloss.Amount)
-            await PowerCmd.Remove(bloodloss);
-        else
-            await PowerCmd.ModifyAmount(context, bloodloss, -toRemove, Owner.Creature, this, false);
+            await HeartCandlePower.ApplyPercent(
+                context,
+                cardPlay.Target,
+                this,
+                CandlePercentPerGroup,
+                true);
+            removedGroups++;
+        }
 
-        var candleStacks = groups * CandlePercentPerGroup;
-        await HeartCandlePower.ApplyPercent(context, cardPlay.Target, this, candleStacks, true);
-
-        if (IsLowHealth())
-            await CreatureCmd.GainBlock(Owner.Creature, Math.Min(groups * 2, 8), default, cardPlay, false);
+        if (removedGroups > 0 && IsLowHealth())
+            await CreatureCmd.GainBlock(Owner.Creature, removedGroups * 2, default, cardPlay, false);
     }
 }

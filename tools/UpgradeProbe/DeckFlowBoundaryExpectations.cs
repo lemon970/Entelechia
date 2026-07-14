@@ -34,15 +34,16 @@ internal static class DeckFlowBoundaryExpectations
             failures);
 
         var suture = ReadCardSource("Suture", failures);
-        RequireConditionalDraw(
-            suture,
-            "Suture draws one only after another card is exhausted",
-            1,
-            failures);
+        Require(suture, "Suture optionally exhausts at most one other card", failures,
+            "TryExhaustAnotherCard(context)");
+        Forbid(suture, "Suture no longer draws cards", failures, "DrawCards(");
 
         var bloodInfect = ReadCardSource("BloodInfect", failures);
         Forbid(bloodInfect, "BloodInfect does not draw cards", failures, "DrawCards(");
-        RequireCreateInHandOnceWithUpgradeState(bloodInfect, "BloodInfect", failures);
+        Forbid(bloodInfect, "BloodInfect no longer generates ResidualPulse", failures,
+            "ResidualPulse.CreateInHand");
+        Require(bloodInfect, "BloodInfect applies both debuffs", failures,
+            "Apply<BloodlossPower>", "Apply<BloodHarvestPower>");
 
         var residualPulse = ReadCardSource("ResidualPulse", failures);
         var residualPulseOnPlay = ExtractMethodBody(
@@ -57,31 +58,100 @@ internal static class DeckFlowBoundaryExpectations
             "highHealth", "IsUpgraded", "CommonActions.CardBlock", "TryPayHpCost");
         RequireExclusiveHealthBranches(residualPulseOnPlay, failures);
 
-        var createInHand = ExtractMethodBody(
-            residualPulse, "CreateInHand", "ResidualPulse", failures);
-        ForbidRegex(residualPulse, "ResidualPulse CreateInHand has no count parameter", failures,
-            @"\bCreateInHand\s*\([^)]*\bcount\b[^)]*\)");
-        RequireGeneratedCardFlow(createInHand, failures);
+        Forbid(residualPulse, "ResidualPulse has no production helper", failures,
+            "CreateInHand");
 
         var conduit = ReadCardSource("ResidualPulseConduit", failures);
-        RequireCreateInHandOnceWithUpgradeState(conduit, "ResidualPulseConduit", failures);
+        Require(conduit, "ResidualPulseConduit is a stacking Power card", failures,
+            "CardType.Power", "WithPower<ResidualPulseConduitPower>(1)",
+            "EnergyCost.UpgradeBy(-1)", "Apply<ResidualPulseConduitPower>");
+        Forbid(conduit, "ResidualPulseConduit does not generate ResidualPulse", failures,
+            "ResidualPulse.CreateInHand");
+
+        var conduitPower = ReadSource("Powers", "ResidualPulseConduitPower", failures);
+        Require(conduitPower, "ResidualPulseConduitPower stacks and grants two triggers per layer", failures,
+            "PowerStackType.Counter", "TriggersPerStack = 2",
+            "Amount <= 0m", "(int)Amount * TriggersPerStack");
+        RequireInOrder(conduitPower, "ResidualPulseConduitPower locks the health branch at trigger time", failures,
+            "TriggerCountThisTurn++", "Owner.CurrentHp > Owner.MaxHp * 0.5m", "Draw", "GainEnergy", "GainBlock");
+        Require(conduitPower, "ResidualPulseConduitPower only responds to card HP loss", failures,
+            "props != DamageProps.cardHpLoss", "cardSource?.Owner?.Creature != Owner");
+
+        var replete = ReadSource("Relics", "BloodDemonReplete", failures);
+        Require(replete, "BloodDemonReplete persists its floor quota", failures,
+            "[SavedProperty]", "LastRevivedFloor", "Owner?.RunState?.TotalFloor ?? -1");
+        Require(replete, "BloodDemonReplete grants immediate revive rewards", failures,
+            "CardPileCmd.Draw(context, 2m", "PlayerCmd.GainEnergy(2m", "Apply<BloodHarvestPower>");
+        Require(replete, "BloodDemonReplete reduces attack damage for the revived floor", failures,
+            "LastRevivedFloor != currentFloor", "target != Owner?.Creature", "DamageProps.monsterMove", "0.75m");
 
         var puncture = ReadCardSource("BloodlinePuncture", failures);
         var punctureOnPlay = ExtractMethodBody(
             puncture, "OnPlay", "BloodlinePuncture", failures);
         RequireBloodlinePunctureFlow(punctureOnPlay, failures);
 
+        var counterSlash = ReadCardSource("CounterSlash", failures);
+        Require(counterSlash, "CounterSlash reads only its owner's HP-loss state", failures,
+            "TurnStateTracker.LostHpThisTurnFor(Owner.Creature)");
+        RequireRegex(counterSlash, "CounterSlash uses independent low-health and HP-loss branches", failures,
+            @"if\s*\(\s*IsLowHealth\s*\(\s*\)\s*\)[\s\S]*if\s*\(\s*TurnStateTracker\.LostHpThisTurnFor");
+        Forbid(counterSlash, "CounterSlash does not make its rewards mutually exclusive", failures,
+            "else if", "else\n");
+
+        var bloodStrike = ReadCardSource("BloodStrike", failures);
+        Require(bloodStrike, "BloodStrike adds high-health draw and low-health kill sustain", failures,
+            "IsHighHealth() && target.CurrentHp > 0",
+            "DrawCards(context, DynamicVars.Cards.BaseValue)",
+            "IsLowHealth() && target.CurrentHp <= 0",
+            "HealTracking(Owner.Creature, DynamicVars.Heal.BaseValue");
+
+        var bloodDissect = ReadCardSource("BloodDissect", failures);
+        Require(bloodDissect, "BloodDissect removes up to three stacks and rewards removing all three", failures,
+            "Math.Min(3, (int)harvest.Amount)",
+            "if (toRemove == 3)",
+            "GainEnergy(1, Owner)");
+
+        var bloodToCandle = ReadCardSource("BloodToCandle", failures);
+        RequireInOrder(bloodToCandle, "BloodToCandle applies one candle for each pair removed", failures,
+            "while (removedGroups < 4)",
+            "ModifyAmount(context, bloodloss, -2",
+            "HeartCandlePower.ApplyPercent",
+            "removedGroups++");
+
+        var clottingBackflow = ReadCardSource("ClottingBackflow", failures);
+        Require(clottingBackflow, "ClottingBackflow uses its upgraded removal limit in both health states", failures,
+            "var removalLimit = (int)DynamicVars.Cards.BaseValue");
+        Forbid(clottingBackflow, "ClottingBackflow no longer exhausts or advertises Exhaust", failures,
+            "WithTip(CardKeyword.Exhaust)", "CardCmd.Exhaust(context, this", "CardKeyword.Exhaust");
+        Forbid(clottingBackflow, "ClottingBackflow does not hard-code a low-health removal cap", failures,
+            "lowHealth ? 2");
+
+        foreach (var cardName in new[]
+                 {
+                     "BloodDebtSettlement",
+                     "Bloodletting",
+                     "BloodRebuild",
+                     "HeartCandleRitual",
+                     "ImmortalBloodline",
+                     "ReviveCandle"
+                 })
+        {
+            var source = ReadCardSource(cardName, failures);
+            Require(source, $"{cardName} declares standard Exhaust metadata", failures,
+                "WithKeyword(CardKeyword.Exhaust");
+            Forbid(source, $"{cardName} does not manually Exhaust itself", failures,
+                "CardCmd.Exhaust(context, this");
+        }
+
         var bloodMend = ReadCardSource("BloodMend", failures);
-        Require(bloodMend, "BloodMend always draws its full amount", failures,
-            "DrawCards(context, DynamicVars.Cards.BaseValue)");
-        Forbid(bloodMend, "BloodMend no longer reduces low-health draw", failures,
-            "DynamicVars.Cards.BaseValue - 1m");
+        RequireInOrder(bloodMend, "BloodMend locks health, heals low, then draws", failures,
+            "var lowHealth", "HealTracking", "var cards", "DrawCards(context, lowHealth ? cards - 1m : cards)");
 
         var bloodOverload = ReadCardSource("BloodOverload", failures);
-        Require(bloodOverload, "BloodOverload always draws after payment", failures,
-            "DrawCards(context, 1)");
-        RequireInOrder(bloodOverload, "BloodOverload draw precedes conditional refund", failures,
-            "Apply<BloodSpeedPower>", "DrawCards(context, 1)", "if (lowHealth)", "GainEnergy");
+        RequireInOrder(bloodOverload, "BloodOverload locks health before payment", failures,
+            "var lowHealth", "TryPayHpCost", "Apply<BloodSpeedPower>", "if (lowHealth)");
+        Require(bloodOverload, "BloodOverload bridges both health states", failures,
+            "GainEnergy(1, Owner)", "DrawCards(context, 1)");
 
         var autophagy = ReadCardSource("Autophagy", failures);
         RequireInOrder(autophagy, "Autophagy pays before gaining energy", failures,
@@ -102,6 +172,16 @@ internal static class DeckFlowBoundaryExpectations
         var heartBrand = ReadCardSource("HeartBrand", failures);
         RequireInOrder(heartBrand, "HeartBrand pays before applying candle", failures,
             "TryPayHpCost", "HeartCandlePower.ApplyPercent");
+        Require(heartBrand, "HeartBrand grants one Energy for a target without Heart Candle", failures,
+            "if (!hadCandle)", "GainEnergy(1, Owner)");
+        Forbid(heartBrand, "HeartBrand no longer refunds the actual card cost", failures,
+            "EnergySpent", "refund");
+
+        var immortalBloodline = ReadCardSource("ImmortalBloodline", failures);
+        RequireInOrder(immortalBloodline, "ImmortalBloodline checks current Health after applying its power", failures,
+            "Apply<ImmortalBloodlinePower>", "if (IsLowHealth())", "GainEnergy(1, Owner)");
+        Forbid(immortalBloodline, "ImmortalBloodline does not snapshot an Energy refund flag", failures,
+            "var refundEnergy");
 
         var bloodStorm = ReadCardSource("BloodStorm", failures);
         RequireInOrder(bloodStorm, "BloodStorm snapshots, pays, then attacks", failures,
@@ -132,34 +212,56 @@ internal static class DeckFlowBoundaryExpectations
             "Power<EternalRepletePower>().UpgradeValueBy");
 
         var bloodDemonForm = ReadCardSource("BloodDemonForm", failures);
-        Require(bloodDemonForm, "BloodDemonForm uses its immediate Strength dynamic value", failures,
-            "DynamicVars.Power<StrengthPower>().BaseValue");
+        Require(bloodDemonForm, "BloodDemonForm exposes and uses all displayed dynamic values", failures,
+            "DynamicVars.Power<StrengthPower>().BaseValue",
+            "WithPower<HeartCandlePower>",
+            "WithPower<BloodSpeedPower>",
+            "WithPower<BloodDemonFormPower>(\"MultiplierBonus\"");
+        Forbid(bloodDemonForm, "BloodDemonForm no longer exposes per-turn Strength", failures,
+            "TurnStrength");
+
+        var bloodDemonFormPower = ReadSource("Powers", "BloodDemonFormPower", failures);
+        Require(bloodDemonFormPower, "BloodDemonFormPower scales every per-stack effect with Amount", failures,
+            "PowerStackType.Counter",
+            "Amount * BloodSpeedPerStack");
+        Require(bloodDemonFormPower, "BloodDemonFormPower applies the accumulated Heart Candle percentage", failures,
+            "[SavedProperty]",
+            "HeartCandlePercent { get; set; }",
+            "HeartCandlePower.ApplyPercent(choiceContext, target, null, HeartCandlePercent");
+        Forbid(bloodDemonFormPower, "BloodDemonFormPower no longer grants Strength each turn", failures,
+            "Apply<StrengthPower>", "StrengthPerStack");
+        Require(bloodDemonForm, "BloodDemonForm accumulates ten or twelve percent per played copy", failures,
+            "WithPower<HeartCandlePower>(10)",
+            "DynamicVars.Power<HeartCandlePower>().UpgradeValueBy(2)",
+            "form.HeartCandlePercent += DynamicVars.Power<HeartCandlePower>().BaseValue");
+
+        var heartCandlePower = ReadSource("Powers", "HeartCandlePower", failures);
+        Require(heartCandlePower, "HeartCandlePower reads the shared per-stack Blood Demon multiplier", failures,
+            "formStacks * BloodDemonFormPower.HeartCandleMultiplierBonusPerStack");
 
         var bloodClanCourt = ReadCardSource("BloodClanCourt", failures);
-        RequireRegex(bloodClanCourt, "BloodClanCourt upgrade draw uses its Cards dynamic value", failures,
-            @"if\s*\([^)]*DynamicVars\.Cards\.BaseValue[^)]*\)[\s\S]*DrawCards\s*\(\s*context\s*,\s*DynamicVars\.Cards\.BaseValue\s*\)");
+        Require(bloodClanCourt, "BloodClanCourt upgrade reduces energy cost", failures,
+            "EnergyCost.UpgradeBy(-1)");
+        Forbid(bloodClanCourt, "BloodClanCourt no longer draws on play", failures,
+            "DrawCards(");
+        Forbid(bloodClanCourt, "BloodClanCourt no longer owns a Cards dynamic value", failures,
+            "WithCards(");
 
-        foreach (var (name, source) in new[]
-                 {
-                     ("BloodInfect", bloodInfect),
-                     ("ResidualPulseConduit", conduit)
-                 })
-        {
-            ForbidRegex(source, $"{name} has no two-card generation count", failures,
-                @"\bcount\s*[:=]\s*2m?\b");
-            ForbidRegex(source, $"{name} has no generation loop", failures,
-                @"\b(for|foreach|while)\s*\(");
-        }
+        ForbidRegex(bloodInfect, "BloodInfect has no generation loop", failures,
+            @"\b(for|foreach|while)\s*\(");
     }
 
     private static string ReadCardSource(string cardName, List<string> failures)
+        => ReadSource("Cards", cardName, failures);
+
+    private static string ReadSource(string directory, string typeName, List<string> failures)
     {
         var path = Path.Combine(
-            Directory.GetCurrentDirectory(), "EntelechiaCode", "Cards", cardName + ".cs");
+            Directory.GetCurrentDirectory(), "EntelechiaCode", directory, typeName + ".cs");
         if (File.Exists(path))
             return File.ReadAllText(path);
 
-        failures.Add($"{cardName} source file missing: {path}");
+        failures.Add($"{typeName} source file missing: {path}");
         return string.Empty;
     }
 
@@ -180,10 +282,13 @@ internal static class DeckFlowBoundaryExpectations
         string source,
         string name,
         List<string> failures,
-        string fragment)
+        params string[] fragments)
     {
-        if (source.Contains(fragment, StringComparison.Ordinal))
-            failures.Add($"{name}: found forbidden '{fragment}'");
+        foreach (var fragment in fragments)
+        {
+            if (source.Contains(fragment, StringComparison.Ordinal))
+                failures.Add($"{name}: found forbidden '{fragment}'");
+        }
     }
 
     private static void RequireCount(

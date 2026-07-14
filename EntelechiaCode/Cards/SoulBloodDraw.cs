@@ -29,13 +29,13 @@ public class SoulBloodDraw : EntelechiaCard
     protected override async Task OnPlay(PlayerChoiceContext context, CardPlay cardPlay)
     {
         var lowHealth = IsLowHealth();
-        var hadHarvest = cardPlay.Target?.Powers?.Any(p => p is BloodHarvestPower && p.Amount > 0) == true;
+        var triggerCountBeforeAttack = BloodHarvestPower.GetTriggerCountForCurrentCardPlay(this);
         await ExecuteCardAttack(context, cardPlay);
-        if (hadHarvest)
+        if (BloodHarvestPower.GetTriggerCountForCurrentCardPlay(this) > triggerCountBeforeAttack)
         {
             await TurnStateTracker.HealTracking(Owner.Creature, DynamicVars.Heal.BaseValue, true);
             if (lowHealth)
-                await PlayerCmd.GainEnergy(1, Owner);
+                await PlayerCmd.GainEnergy(DynamicVars.Energy.BaseValue, Owner);
             else
                 await DrawCards(context, DynamicVars.Cards.BaseValue);
         }

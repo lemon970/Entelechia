@@ -29,7 +29,8 @@ public class BloodlinePuncture : EntelechiaCard
         var highHealth = IsHighHealth();
 
         await ExecuteCardAttack(context, cardPlay);
-        await DrawCards(context, DynamicVars.Cards.BaseValue);
+        if (highHealth)
+            await DrawCards(context, DynamicVars.Cards.BaseValue);
 
         if (cardPlay.Target != null && cardPlay.Target.CurrentHp > 0)
         {

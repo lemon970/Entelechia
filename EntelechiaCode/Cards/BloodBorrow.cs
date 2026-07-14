@@ -24,8 +24,9 @@ public class BloodBorrow : EntelechiaCard
 
     protected override async Task OnPlay(PlayerChoiceContext context, CardPlay cardPlay)
     {
-        if (!await TryPayHpCost(context, HpCost, cardPlay)) return;
         var lowHealth = IsLowHealth();
+        var hpCost = lowHealth ? 3m : 4m;
+        if (!await TryPayHpCost(context, hpCost, cardPlay)) return;
         var cards = DynamicVars.Cards.BaseValue;
         var drawn = await DrawCards(context, lowHealth ? cards - 1m : cards);
         if (lowHealth)

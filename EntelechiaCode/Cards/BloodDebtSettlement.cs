@@ -9,28 +9,20 @@ namespace Entelechia.EntelechiaCode.Cards;
 
 public class BloodDebtSettlement : EntelechiaCard
 {
-    private bool ExhaustsOnPlay { get; set; } = true;
-
     public BloodDebtSettlement() : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.AnyEnemy)
     {
-    }
-
-    protected override void OnUpgrade()
-    {
-        ExhaustsOnPlay = false;
+        WithKeyword(CardKeyword.Exhaust, UpgradeType.Remove);
     }
 
     protected override async Task OnPlay(PlayerChoiceContext context, CardPlay cardPlay)
     {
-        if (cardPlay.Target == null) return;
         var lowHealth = IsLowHealth();
+        if (cardPlay.Target == null) return;
 
         var harvest = cardPlay.Target.Powers?.FirstOrDefault(p => p is BloodHarvestPower);
         if (harvest != null && harvest.Amount > 0)
         {
-            var stacks = lowHealth
-                ? (int)harvest.Amount
-                : Math.Min(3, (int)harvest.Amount);
+            var stacks = Math.Min(3, (int)harvest.Amount);
             if (stacks >= harvest.Amount)
                 await PowerCmd.Remove(harvest);
             else
@@ -50,7 +42,5 @@ public class BloodDebtSettlement : EntelechiaCard
             }
         }
 
-        if (ExhaustsOnPlay)
-            await CardCmd.Exhaust(context, this, false, false);
     }
 }

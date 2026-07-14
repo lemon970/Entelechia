@@ -337,6 +337,14 @@ public class Entelechia : PlaceholderCharacterModel
         $"{MainFile.ResPath}/scenes/merchant/characters/entelechia_merchant.tscn";
     public override string CustomRestSiteAnimPath =>
         $"{MainFile.ResPath}/scenes/rest_site/characters/entelechia_rest_site.tscn";
+    public override string CustomArmPointingTexturePath =>
+        $"{MainFile.ResPath}/images/ui/hands/multiplayer_hand_entelechia_point.png";
+    public override string CustomArmRockTexturePath =>
+        $"{MainFile.ResPath}/images/ui/hands/multiplayer_hand_entelechia_rock.png";
+    public override string CustomArmScissorsTexturePath =>
+        $"{MainFile.ResPath}/images/ui/hands/multiplayer_hand_entelechia_scissors.png";
+    public override string CustomArmPaperTexturePath =>
+        $"{MainFile.ResPath}/images/ui/hands/multiplayer_hand_entelechia_paper.png";
     public override string CustomCharacterSelectIconPath => "char_select_char_name.png".CharacterUiPath();
     public override string CustomCharacterSelectLockedIconPath => "char_select_char_name_locked.png".CharacterUiPath();
     public override string CustomMapMarkerPath => "map_marker_char_name.png".CharacterUiPath();

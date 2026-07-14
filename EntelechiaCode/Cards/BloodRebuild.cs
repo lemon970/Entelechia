@@ -14,6 +14,7 @@ public class BloodRebuild : EntelechiaCard
     public BloodRebuild() : base(2, CardType.Skill, CardRarity.Rare, TargetType.AllEnemies)
     {
         WithBlock(8);
+        WithKeyword(CardKeyword.Exhaust);
     }
 
     protected override void OnUpgrade()
@@ -23,24 +24,23 @@ public class BloodRebuild : EntelechiaCard
 
     protected override async Task OnPlay(PlayerChoiceContext context, CardPlay cardPlay)
     {
+        var lowHealth = IsLowHealth();
         var creature = Owner.Creature;
         var target50 = Math.Max(creature.MaxHp / 2, 1m);
-        var lowHealth = IsLowHealth();
 
         await TurnStateTracker.SetCurrentHpTracking(creature, target50);
 
+        foreach (var enemy in this.GetTargets().Where(enemy => enemy.CurrentHp > 0))
+            await CommonActions.Apply<BloodHarvestPower>(context, enemy, this, 3, true);
+
         if (lowHealth)
         {
-            foreach (var enemy in this.GetTargets().Where(enemy => enemy.CurrentHp > 0))
-                await CommonActions.Apply<BloodHarvestPower>(context, enemy, this, 3, true);
             await CommonActions.CardBlock(this, cardPlay);
+            await PlayerCmd.GainEnergy(1, Owner);
         }
         else
         {
-            await PlayerCmd.GainEnergy(3, Owner);
-            await DrawCards(context, 1);
+            await DrawCards(context, 2);
         }
-
-        await CardCmd.Exhaust(context, this, false, false);
     }
 }

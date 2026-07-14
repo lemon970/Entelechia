@@ -1,8 +1,8 @@
 {
-  "ENTELECHIA-BLOOD_DEMON_REPLETE.title": "血魔重盈",
-  "ENTELECHIA-BLOOD_DEMON_REPLETE.description": "在休息处休息不会回复生命。每场战斗第一次你将要死亡时，改为保留 1 点生命，回复至最大生命的 40%，清除自身的易伤和虚弱，获得 3 层绯红庇护与 2 层血速，对所有敌人施加 3 层萃血，并获得 1 层余烬血脉。",
-  "ENTELECHIA-BLOOD_DEMON_REPLETE.flavor": "血不肯沉默。",
-  "BLOOD_DEMON_REPLETE.title": "血魔重盈",
-  "BLOOD_DEMON_REPLETE.description": "在休息处休息不会回复生命。每场战斗第一次你将要死亡时，改为保留 1 点生命，回复至最大生命的 40%，清除自身的易伤和虚弱，获得 3 层绯红庇护与 2 层血速，对所有敌人施加 3 层萃血，并获得 1 层余烬血脉。",
-  "BLOOD_DEMON_REPLETE.flavor": "血不肯沉默。"
+  "ENTELECHIA-BLOOD_DEMON_REPLETE.title": "Blood Demon Repletion",
+  "ENTELECHIA-BLOOD_DEMON_REPLETE.description": "Resting at Rest Sites does not heal you. Once per map floor, when you would die, survive at 1 HP and heal to 40% of Max HP (modifiable by Eternal Repletion), remove Vulnerable and Weak, draw 2 cards, gain 2 Energy, and apply 3 Blood Harvest to all enemies. Until you leave that floor, take 25% less attack damage.",
+  "ENTELECHIA-BLOOD_DEMON_REPLETE.flavor": "Blood refuses to fall silent.",
+  "BLOOD_DEMON_REPLETE.title": "Blood Demon Repletion",
+  "BLOOD_DEMON_REPLETE.description": "Resting at Rest Sites does not heal you. Once per map floor, when you would die, survive at 1 HP and heal to 40% of Max HP (modifiable by Eternal Repletion), remove Vulnerable and Weak, draw 2 cards, gain 2 Energy, and apply 3 Blood Harvest to all enemies. Until you leave that floor, take 25% less attack damage.",
+  "BLOOD_DEMON_REPLETE.flavor": "Blood refuses to fall silent."
 }

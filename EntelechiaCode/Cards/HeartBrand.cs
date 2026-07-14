@@ -13,7 +13,7 @@ public class HeartBrand : EntelechiaCard
     protected override decimal HpCost => 3m;
     private decimal ExistingCandlePercent => DynamicVars.Power<HeartCandlePower>().BaseValue / 2m;
 
-    public HeartBrand() : base(1, CardType.Skill, CardRarity.Common, TargetType.AnyEnemy)
+    public HeartBrand() : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.AnyEnemy)
     {
         WithPower<HeartCandlePower>(12);
         WithCards(1);
@@ -36,11 +36,7 @@ public class HeartBrand : EntelechiaCard
             await HeartCandlePower.ApplyPercent(context, cardPlay.Target, this, percent, true);
 
             if (!hadCandle)
-            {
-                var refund = Math.Min(cardPlay.Resources.EnergySpent, 1);
-                if (refund > 0)
-                    await PlayerCmd.GainEnergy(refund, Owner);
-            }
+                await PlayerCmd.GainEnergy(1, Owner);
         }
         await DrawCards(context, DynamicVars.Cards.BaseValue);
     }

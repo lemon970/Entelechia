@@ -27,7 +27,6 @@ public class BloodHaste : EntelechiaCard
     protected override async Task OnPlay(PlayerChoiceContext context, CardPlay cardPlay)
     {
         if (!await TryPayHpCost(context, HpCost, cardPlay)) return;
-        await CardCmd.Exhaust(context, this, false, false);
         await CommonActions.Apply<BloodSpeedPower>(context, Owner.Creature, this, DynamicVars.Power<BloodSpeedPower>().BaseValue, true);
     }
 }

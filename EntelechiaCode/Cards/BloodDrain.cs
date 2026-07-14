@@ -11,7 +11,7 @@ namespace Entelechia.EntelechiaCode.Cards;
 public class BloodDrain : EntelechiaCard
 {
     protected override decimal BaseDamage => DynamicVars.Damage.BaseValue;
-    public BloodDrain() : base(1, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy)
+    public BloodDrain() : base(1, CardType.Attack, CardRarity.Uncommon, TargetType.AnyEnemy)
     {
         WithDamage(8);
         WithPower<BloodHarvestPower>(1);

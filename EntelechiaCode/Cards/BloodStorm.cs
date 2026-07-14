@@ -36,6 +36,8 @@ public class BloodStorm : EntelechiaCard
 
             if (lowHealth)
                 await PlayerCmd.GainEnergy(1, Owner);
+            else
+                await DrawCards(context, 1);
         }
     }
 }

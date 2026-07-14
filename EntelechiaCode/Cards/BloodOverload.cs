@@ -17,6 +17,7 @@ public class BloodOverload : EntelechiaCard
     public BloodOverload() : base(0, CardType.Skill, CardRarity.Uncommon, TargetType.None)
     {
         WithPower<BloodSpeedPower>(2);
+        WithKeyword(CardKeyword.Exhaust, UpgradeType.Remove);
     }
 
     protected override void OnUpgrade()
@@ -26,8 +27,8 @@ public class BloodOverload : EntelechiaCard
 
     protected override async Task OnPlay(PlayerChoiceContext context, CardPlay cardPlay)
     {
-        if (!await TryPayHpCost(context, HpCost, cardPlay)) return;
         var lowHealth = IsLowHealth();
+        if (!await TryPayHpCost(context, HpCost, cardPlay)) return;
 
         await CommonActions.Apply<BloodSpeedPower>(
             context,
@@ -36,11 +37,9 @@ public class BloodOverload : EntelechiaCard
             DynamicVars.Power<BloodSpeedPower>().BaseValue,
             true);
 
-        await DrawCards(context, 1);
-
         if (lowHealth)
             await PlayerCmd.GainEnergy(1, Owner);
-
-        await CardCmd.Exhaust(context, this, false, false);
+        else
+            await DrawCards(context, 1);
     }
 }

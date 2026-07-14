@@ -2,9 +2,7 @@ using BaseLib.Abstracts;
 using BaseLib.Extensions;
 using BaseLib.Utils;
 using MegaCrit.Sts2.Core.Commands;
-using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Entities.Cards;
-using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Cards;
@@ -44,17 +42,5 @@ public class ResidualPulse : EntelechiaCard
         {
             await DrawCards(context, 1m);
         }
-    }
-
-    public static async Task<CardModel?> CreateInHand(Player owner, CombatState combatState, bool upgraded)
-    {
-        if (CombatManager.Instance.IsOverOrEnding) return null;
-
-        var token = combatState.CreateCard<ResidualPulse>(owner);
-        if (upgraded)
-            CardCmd.Upgrade(token);
-
-        await CardPileCmd.AddGeneratedCardsToCombat([token], PileType.Hand, owner);
-        return token;
     }
 }

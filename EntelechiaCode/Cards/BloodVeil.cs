@@ -11,7 +11,7 @@ public class BloodVeil : EntelechiaCard
 {
     public BloodVeil() : base(1, CardType.Skill, CardRarity.Basic, TargetType.None)
     {
-        WithBlock(6);
+        WithBlock(5);
         WithTags(CardTag.Defend);
     }
 

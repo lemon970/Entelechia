@@ -1,3 +1,6 @@
 {
-  
+  "ENTELECHIA-HIGHHEALTH.title": "High Health",
+  "ENTELECHIA-HIGHHEALTH.description": "Current HP is above 50% of maximum HP.",
+  "ENTELECHIA-LOWHEALTH.title": "Low Health",
+  "ENTELECHIA-LOWHEALTH.description": "Current HP is at or below 50% of maximum HP; exactly half HP counts as Low Health."
 }

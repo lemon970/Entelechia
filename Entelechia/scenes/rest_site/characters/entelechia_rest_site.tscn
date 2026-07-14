@@ -2,7 +2,20 @@
 
 [ext_resource type="Texture2D" path="res://Entelechia/images/character/rest_site.png" id="1_rest"]
 
-[node name="EntelechiaRestSite" type="Sprite2D"]
-texture = ExtResource("1_rest")
-scale = Vector2(0.36, 0.36)
+[node name="EntelechiaRestSite" type="Node2D"]
 
+[node name="ControlRoot" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+
+[node name="Visuals" type="Sprite2D" parent="ControlRoot"]
+scale = Vector2(0.36, 0.36)
+texture = ExtResource("1_rest")
+
+[node name="Hitbox" type="Control" parent="ControlRoot"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = -177.48
+offset_top = -273.6
+offset_right = 77.4
+offset_bottom = 274.32

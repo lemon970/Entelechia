@@ -7,7 +7,7 @@ namespace Entelechia.EntelechiaCode.Cards;
 
 public class BloodMend : EntelechiaCard
 {
-    public BloodMend() : base(1, CardType.Skill, CardRarity.Common, TargetType.None)
+    public BloodMend() : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.None)
     {
         WithCards(2);
         WithHeal(5);
@@ -25,6 +25,7 @@ public class BloodMend : EntelechiaCard
         if (lowHealth)
             await TurnStateTracker.HealTracking(Owner.Creature, DynamicVars.Heal.BaseValue, true);
 
-        await DrawCards(context, DynamicVars.Cards.BaseValue);
+        var cards = DynamicVars.Cards.BaseValue;
+        await DrawCards(context, lowHealth ? cards - 1m : cards);
     }
 }

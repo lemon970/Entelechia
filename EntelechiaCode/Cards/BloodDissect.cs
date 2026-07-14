@@ -29,7 +29,6 @@ public class BloodDissect : EntelechiaCard
     {
         if (cardPlay.Target == null) return;
         var target = cardPlay.Target;
-        var lowHealth = IsLowHealth();
 
         await ExecuteCardAttack(context, cardPlay);
         if (target.CurrentHp <= 0) return;
@@ -37,9 +36,7 @@ public class BloodDissect : EntelechiaCard
         var harvest = target.Powers?.FirstOrDefault(p => p is BloodHarvestPower);
         if (harvest == null || harvest.Amount <= 0) return;
 
-        var toRemove = lowHealth
-            ? (int)harvest.Amount
-            : Math.Min(2, (int)harvest.Amount);
+        var toRemove = Math.Min(3, (int)harvest.Amount);
         if (toRemove >= harvest.Amount)
             await PowerCmd.Remove(harvest);
         else
@@ -58,9 +55,7 @@ public class BloodDissect : EntelechiaCard
             }
         });
 
-        if (lowHealth && toRemove >= 2)
+        if (toRemove == 3)
             await PlayerCmd.GainEnergy(1, Owner);
-        else if (!lowHealth && toRemove == 2)
-            await DrawCards(context, 1);
     }
 }

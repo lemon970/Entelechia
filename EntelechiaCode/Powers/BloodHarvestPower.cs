@@ -15,8 +15,9 @@ namespace Entelechia.EntelechiaCode.Powers;
 // Debuff on enemy. Each attack hit consumes one stack and heals the attacker.
 public class BloodHarvestPower : EntelechiaPower
 {
-    private const decimal HealPerHit = 3m;
-    private const decimal MaxHealPerCardPlay = 6m;
+    private const decimal BaseHealPerHit = 3m;
+    private const decimal CourtHealPerHit = 4m;
+    private const decimal MaxTriggersHealedPerCardPlay = 2m;
 
     private static readonly CardPlayHealKeyComparer PlayKeyComparer = new();
     private static readonly Dictionary<CardPlayHealKey, decimal> HealedByPlay = new(PlayKeyComparer);
@@ -71,7 +72,13 @@ public class BloodHarvestPower : EntelechiaPower
 
         RecordTriggerForCurrentCardPlay(cardSource!);
 
-        var healAmount = ClaimHealForCurrentCardPlay(cardSource, HealPerHit);
+        var healPerHit = dealer.Powers?.Any(power => power is BloodClanCourtPower) == true
+            ? CourtHealPerHit
+            : BaseHealPerHit;
+        var healAmount = ClaimHealForCurrentCardPlay(
+            cardSource,
+            healPerHit,
+            healPerHit * MaxTriggersHealedPerCardPlay);
         if (healAmount > 0)
             await TurnStateTracker.HealTracking(dealer, healAmount, false);
 
@@ -92,14 +99,17 @@ public class BloodHarvestPower : EntelechiaPower
             await PowerCmd.ModifyAmount(choiceContext, this, -1, dealer, cardSource, false);
     }
 
-    private static decimal ClaimHealForCurrentCardPlay(CardModel? cardSource, decimal amount)
+    private static decimal ClaimHealForCurrentCardPlay(
+        CardModel? cardSource,
+        decimal amount,
+        decimal maxHealPerCardPlay)
     {
         if (cardSource == null) return amount;
 
         var key = new CardPlayHealKey(cardSource, cardSource.CurrentPlayIndex);
         HealedByPlay.TryGetValue(key, out var alreadyHealed);
 
-        var granted = Math.Min(amount, Math.Max(MaxHealPerCardPlay - alreadyHealed, 0m));
+        var granted = Math.Min(amount, Math.Max(maxHealPerCardPlay - alreadyHealed, 0m));
         HealedByPlay[key] = alreadyHealed + granted;
         return granted;
     }
