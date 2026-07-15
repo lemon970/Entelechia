@@ -556,6 +556,8 @@ EnchantmentUpgradeExpectations.Run(failures);
 
 Sts2CompatibilityExpectations.Run(failures);
 
+HextechRunesCompatibilityExpectations.Run(failures);
+
 UpgradeTestHarness.Run(
     AttackUpgradeExpectations.Cases
         .Concat(SkillUpgradeExpectations.Cases)

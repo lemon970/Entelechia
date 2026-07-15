@@ -72,7 +72,14 @@ public static class TurnStateTracker
     public static async Task HealTracking(Creature creature, decimal amount, bool affectsGameplay)
     {
         var before = creature.CurrentHp;
-        await CreatureCmd.Heal(creature, amount, affectsGameplay);
+        try
+        {
+            await CreatureCmd.Heal(creature, amount, affectsGameplay);
+        }
+        catch (Exception ex) when (HextechRunesCompatibility.IsBrokenBetaDamageCall(ex))
+        {
+            HextechRunesCompatibility.LogSuppressed(nameof(HealTracking));
+        }
         TrackHpDelta(creature, creature.CurrentHp - before);
     }
 
@@ -280,7 +287,17 @@ public static class EntelechiaCardCastAnimationPatch
 
     public static async Task Postfix(Task __result, CardModel __instance)
     {
-        await __result;
+        try
+        {
+            await __result;
+        }
+        catch (Exception ex) when (
+            __instance is EntelechiaCard
+            && HextechRunesCompatibility.IsBrokenBetaDamageCall(ex))
+        {
+            HextechRunesCompatibility.LogSuppressed(nameof(EntelechiaCardCastAnimationPatch));
+        }
+
         if (__instance is EntelechiaCard card)
             card.TryPlayCastAnimationAfterSuccessfulPlay();
     }
@@ -361,7 +378,15 @@ public static class CombatPatches
         decimal amount,
         CardModel? cardSource)
     {
-        await __result;
+        try
+        {
+            await __result;
+        }
+        catch (Exception ex) when (HextechRunesCompatibility.IsBrokenBetaDamageCall(ex))
+        {
+            HextechRunesCompatibility.LogSuppressed(nameof(AfterBlockGained_Animation_Postfix));
+        }
+
         try
         {
             if (amount <= 0 || !TurnStateTracker.IsPlayerCreature(creature)) return;
